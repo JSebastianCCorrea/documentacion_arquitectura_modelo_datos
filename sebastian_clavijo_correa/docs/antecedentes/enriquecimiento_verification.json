@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "base_rows": 43800,
+  "enriched_rows": 43800,
+  "columns": 63,
+  "source_cells_verified": 1401600,
+  "sample_rows": 1200,
+  "sample_cells_compared_with_excel": 75600,
+  "strata": 60,
+  "city_hour_duplicates": 0,
+  "original_values_preserved": true,
+  "xlsx_csv_equivalent": true
+}

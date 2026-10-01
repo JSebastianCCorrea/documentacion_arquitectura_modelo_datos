@@ -1,0 +1,32 @@
+[
+  {
+    "city": "Barranquilla",
+    "country_code": "CO",
+    "geoname_id": 3689147,
+    "elevation_m": 24.0
+  },
+  {
+    "city": "Bogota",
+    "country_code": "CO",
+    "geoname_id": 3688689,
+    "elevation_m": 2582.0
+  },
+  {
+    "city": "Bucaramanga",
+    "country_code": "CO",
+    "geoname_id": 3688465,
+    "elevation_m": 1010.0
+  },
+  {
+    "city": "Cali",
+    "country_code": "CO",
+    "geoname_id": 3687925,
+    "elevation_m": 758.0
+  },
+  {
+    "city": "Medellin",
+    "country_code": "CO",
+    "geoname_id": 3674962,
+    "elevation_m": 1405.0
+  }
+]

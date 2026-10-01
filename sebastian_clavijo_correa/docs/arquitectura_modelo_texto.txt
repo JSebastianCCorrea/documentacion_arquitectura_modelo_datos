@@ -1,0 +1,199 @@
+Arquitectura y modelo de datos
+
+Proyecto integrador | Documentación técnica y académica
+
+Meteorología y energía sintética en cinco ciudades de Colombia
+
+Juan Sebastian Clavijo Correa
+
+Institución Universitaria Digital de AntioquiaInfraestructura y Arquitectura para Big Data30 de septiembre de 2026
+
+Este documento reúne las fases desarrolladas durante el curso y las contrasta con sus archivos de entrada, scripts y evidencias. La energía es una variable sintética con fines académicos; los resultados no describen consumo eléctrico medido ni prueban una relación causal con el clima.
+
+Repositorio: JSebastianCCorrea/documentacion_arquitectura_modelo_datos
+
+Lectura: arquitectura (2), ingesta (3), limpieza (4), enriquecimiento (5), modelo ER (6), diccionario físico (7-10), herramientas (11), automatización (12), resultados y recomendaciones (13), bibliografía (14).
+
+1. Visión global de la arquitectura
+
+El proyecto organiza datos meteorológicos horarios de Medellín, Bogotá, Cali, Barranquilla y Bucaramanga, y los combina con una simulación de energía. Su propósito es disponer de una base trazable para explorar patrones por ciudad y tiempo. El volumen permite ejecutar el proceso localmente y comprobar las reglas antes de trasladarlas a una infraestructura mayor.
+
+Figura 1. Flujo completo. Elaboración propia a partir de los scripts del repositorio. El tramo API-JSON corresponde a la extracción de EA1; la ejecución automatizada actual comienza en las respuestas archivadas.
+
+La entrada se conserva, la limpieza genera una versión tipada y el enriquecimiento añade contexto sin sustituir las variables originales. Después se materializa el modelo SQLite. Cada transición produce evidencias que permiten localizar una diferencia sin repetir solicitudes a proveedores externos.
+
+La carpeta anterior se llamaba actividad_4, pero contenía la fase de enriquecimiento. En este informe se distinguen las fases por su función: EA1, ingesta; EA2, limpieza; tercera fase, enriquecimiento. La presente entrega integra y documenta esas implementaciones.
+
+2. Ingesta y trazabilidad de origen
+
+2.1 Extracción realizada en EA1
+
+El script original consultó Historical Weather API de Open-Meteo mediante requests.get, con fechas 2025-01-01 a 2025-12-31, coordenadas de cada ciudad y timezone=America/Bogota. Solicitó temperature_2m, relative_humidity_2m, precipitation y wind_speed_10m. Cada respuesta quedó guardada como JSON. El API entrega productos meteorológicos modelados; la consulta de EA1 no fijó el parámetro models, por lo que no se atribuye toda la meteorología exclusivamente a ERA5 (Open-Meteo, s. f.).
+
+Las coordenadas incorporadas a la base son las solicitadas para las ciudades. No deben confundirse con las coordenadas de la celda de la malla que devuelve el proveedor. Las respuestas originales conservan esa información y sus unidades.
+
+2.2 Simulación de energía y carga analítica
+
+EA1 asignó consumos base ilustrativos de 110, 130, 115, 125 y 100 a Medellín, Bogotá, Cali, Barranquilla y Bucaramanga. Multiplicó cada base por un factor horario (1,25 de 18 a 21 h; 1,15 de 7 a 9 h; 1 en otras horas), un factor térmico 1 + |T - 22| × 0,015, un factor de lluvia 1 + precipitación × 0,005 y ruido normal con media 1 y desviación 0,05. NumPy utilizó semilla 42 y se redondeó a dos decimales.
+
+El resultado pasó a staging_weather y a las dimensiones dim_city y dim_time, relacionadas lógicamente con fact_weather_energy. La construcción original mediante CREATE TABLE AS no declaró claves primarias ni foráneas. Por eso la limpieza comprueba unicidad y ausencia de huérfanos antes de unir estas tablas.
+
+2.3 Reproducción en esta entrega
+
+src/ingestion.py verifica SHA-256 de los cinco JSON y reconstruye la ingesta sin red. Mantiene el orden original de ciudades y horas para reproducir el ruido. src/db/ingestion.db es una copia inalterada de analytics.duckdb de EA1: su extensión .db no la convierte en SQLite. El replay se contrasta, valor por valor, contra la extracción de esa copia. El código histórico está en docs/antecedentes/ingesta_ea1_original.py.
+
+3. Preprocesamiento y limpieza
+
+src/cleaning.py conserva la lógica de EA2. Lee la tabla de hechos y sus dimensiones en modo de solo lectura, valida las claves y ordena por ciudad y tiempo. Asigna source_row para mantener la correspondencia con la salida original. Después normaliza los nombres de ciudad y convierte números, booleanos y fechas.
+
+3.1 Lo observado en la entrada disponible
+
+La base recibida ya tenía 43.800 filas sin nulos ni duplicados: en esta ejecución no se eliminaron filas, no se imputaron valores y no hubo rechazos. Se conservaron 6.240 filas con alguna marca de atípico. Aplicar controles no obliga a encontrar errores; el informe registra las operaciones realmente necesarias.
+
+El CSV limpio contiene 32 columnas. Su huella coincide byte a byte con el archivo aprobado en EA2. Las muestras CSV y XLSX contienen 1.200 registros: hasta 20 por ciudad, año y mes, con semilla 42. La cobertura y los pesos de expansión permiten reconocer que se trata de una muestra estratificada de cuota fija.
+
+3.2 Uso posterior de las variables
+
+Los z-scores y las marcas IQR se calcularon con el año completo. Son útiles para describir esta base, pero no deben trasladarse sin revisión a un experimento predictivo. Primero habría que separar entrenamiento y evaluación por tiempo y ajustar las transformaciones solo con el entrenamiento. Esta entrega no entrena ni evalúa modelos de predicción.
+
+Evidencias: src/static/auditoria/limpieza/cleaning_report.txt, cleaning_metrics.json, quality_profile.csv y rejected_records.csv. La copia histórica de auditoría de EA2 se conserva en ea2_original/ para distinguir el antecedente de la ejecución integrada.
+
+4. Enriquecimiento de seis formatos
+
+La entrada es el CSV limpio completo, no la muestra. Se carga en cleaned_data dentro de cleaned.duckdb y se lee con Pandas. Las seis fuentes están incluidas en el repositorio con sus manifiestos, instantáneas originales y hashes. Pandas permite lectores distintos y una operación merge con validación de cardinalidad (pandas development team, s. f.-a).
+
+Cada unión es LEFT JOIN con validate="many_to_one": todas las filas base se conservan y una clave repetida en una fuente detiene el proceso. La clave auxiliar de ciudad elimina tildes y diferencias de mayúsculas o espacios; el nombre original queda intacto. Las fechas se obtienen en Colombia antes de cruzar con fuentes diarias.
+
+Los seis cruces encontraron correspondencia para las 43.800 filas; no aumentó el número de registros. Se añadieron 31 columnas: atributos, indicadores matched_*, conversiones de unidades y estado de integración. MJ/m²/día se divide por 3,6 para obtener kWh/m²/día; las duraciones en segundos se dividen por 3.600. Las diferencias con 18 °C son referencias ilustrativas, no índices de confort validados.
+
+4.1 Procedencia y límites de interpretación
+
+Hay cuatro conjuntos externos de tres proveedores: Open-Meteo/GeoNames, Nager.Date y DANE. XML y TXT son catálogos propios. El HTML se preparó a partir del servicio JSON oficial DANE, no de una página inventada. El calendario agrupa 18 festividades en 17 fechas. Bucaramanga conserva el año DIVIPOLA 2024 recibido por el servicio denominado 2025; no se corrigió ese dato sin evidencia.
+
+Si falta correspondencia, enrichment.py conserva la fila con INCOMPLETE y no imputa los atributos externos. La materialización SQLite de esta entrega exige COMPLETE y detiene su publicación si encuentra faltantes. El dato solar del día completo es retrospectivo y no debe emplearse para anticipar una hora de ese mismo día.
+
+5. Modelo lógico y relaciones
+
+El modelo final es una constelación dimensional pequeña: dos tablas de hechos comparten dimensiones, y la dimensión temporal separa calendario y hora. La ciudad-hora identifica cada observación meteorológica; la ciudad-fecha identifica cada observación solar. Esta separación evita sumar 24 veces el valor diario que se repite en el archivo plano.
+
+Figura 2. Modelo físico SQLite. Las flechas indican relación de padre a hijo 1:N. Cada hijo tiene una sola fila padre para la clave obligatoria. Elaboración propia; PK y FK corresponden al DDL ejecutado.
+
+fact_hourly referencia dim_city y dim_time. dim_time referencia dim_date y dim_hour. fact_solar_day referencia dim_city y dim_date. No se enlazan directamente los dos hechos mediante una FK: la vista los integra por ciudad y la fecha obtenida desde dim_time.
+
+model.py activa PRAGMA foreign_keys=ON, carga tablas STRICT en una base temporal y ejecuta foreign_key_check e integrity_check. Solo sustituye analytics.sqlite cuando la vista reconstruye las 63 columnas sin diferencias. Las claves, NOT NULL, UNIQUE y CHECK complementan los controles de Pandas (SQLite, s. f.-a).
+
+6. Diccionario físico: ciudad
+
+Los tipos siguientes proceden de PRAGMA table_info sobre la base creada. Todos los campos físicos son NOT NULL. Los booleanos se guardan como INTEGER con CHECK IN (0,1); los identificadores territoriales se conservan como TEXT para mantener ceros iniciales. Las unidades y definiciones completas de las 63 variables están también en DICCIONARIO_DATOS.md.
+
+dim_city | 5 filas
+
+city_id conserva el identificador local de EA1; no equivale a municipality_code. city y municipality_code tienen restricciones UNIQUE. Los códigos municipales y departamentales exigen cinco y dos dígitos, respectivamente. La dimensión representa únicamente las cinco ciudades incluidas, no un catálogo nacional completo.
+
+7. Diccionario físico: calendario y tiempo
+
+dim_date | 365 filas
+
+dim_hour | 24 filas
+
+dim_time | 8.760 filas
+
+Las fechas se almacenan como texto ISO 8601. observation_time conserva el desplazamiento -05:00 y observation_time_utc el instante en UTC; timezone conserva America/Bogota. SQLite no tiene un tipo nativo TIMESTAMPTZ. El origen DuckDB sí lo utiliza en cleaned_data. (SQLite, s. f.-b).
+
+8. Diccionario físico: hechos solares
+
+fact_solar_day | 1.825 filas
+
+8.1 Granularidad y agregación
+
+La clave primaria compuesta (city_id, local_date) obliga a tener como máximo una observación solar por ciudad y día. Si las 24 filas horarias de un mismo día aportan valores solares distintos, model.py falla antes de escribir. La selección de filas únicas es válida porque primero se comprueba esa dependencia funcional.
+
+La suma anual de radiación se consulta en fact_solar_day, agrupando por city_id. En enriched_data la medida diaria vuelve a repetirse para facilitar el análisis de cada hora: no se debe sumar directamente allí. La energía sintética horaria sí puede sumarse por periodos, siempre manteniendo su carácter simulado.
+
+8.2 Integridad del dato diario
+
+Los CHECK exigen radiación no negativa, duración de luz entre 0 y 86.400 segundos y sunshine_seconds entre cero y daylight_seconds. Las dos FK impiden cargar una ciudad o fecha inexistente. Las conversiones se conservan para lectura directa; sus fórmulas se prueban en la etapa de enriquecimiento.
+
+Las fechas y variables meteorológicas describen 2025. La fecha de ejecución del pipeline, registrada en UTC en los archivos JSON, identifica cuándo se transformó la instantánea; no sustituye la fecha de observación ni representa una actualización automática del proveedor.
+
+9. Diccionario físico: hechos horarios
+
+fact_hourly | 43.800 filas
+
+source_row es PK y (city_id, time_id) es UNIQUE. Los índices por time_id y fecha solar favorecen consultas temporales. La vista enriched_data une las seis tablas y devuelve las 63 columnas en el mismo orden del CSV, incluyendo las marcas de calidad y de correspondencia. El SQL completo está en src/sql/schema.sql.
+
+10. Herramientas y simulación de nube
+
+SQLite se incorpora para cumplir el modelo solicitado, sin describir retrospectivamente DuckDB como si fuera SQLite. La integración conserva ambas tecnologías con responsabilidades distintas: compatibilidad con las fases previas y consulta relacional final. La justificación es verificabilidad y portabilidad, no una supuesta superioridad universal (DuckDB Foundation, s. f.; SQLite, s. f.-c).
+
+La simulación representa capas de almacenamiento con carpetas y archivos: JSON originales, datos limpios, datos enriquecidos y modelo consultable. GitHub aloja código e instantáneas; un runner ejecuta el lote. No se despliegan S3, Azure Blob Storage, redes virtuales ni nodos distribuidos. No se afirma haber procesado un volumen de Big Data real.
+
+Pandas opera en memoria; para crecer se debe medir uso de RAM y tiempos, reducir columnas y evaluar procesamiento por particiones. Spark distribuye trabajo entre un controlador y ejecutores, pero incorporarlo ahora añadiría complejidad sin una necesidad demostrada (pandas development team, s. f.-b; Apache Software Foundation, s. f.).
+
+11. Automatización y reproducción
+
+El workflow activo está en .github/workflows/bigdata.yml de la raíz. La copia interior conserva la estructura académica sebastian_clavijo_correa; CI comprueba que ambas coincidan. Se ejecuta con push, pull_request o workflow_dispatch y solo solicita permiso contents: read. Las acciones están fijadas por SHA y las dependencias principales por versión.
+
+La ejecución integrada escribe en build/, un directorio ignorado por Git y creado en el runner. Así no puede aprobar una evidencia versionada sin volver a generarla. Las instantáneas de entrada permanecen inalteradas. Si falla una comparación o restricción, el proceso devuelve error y no publica el artefacto exitoso.
+
+11.1 Comandos desde la carpeta académica
+
+python -m venv .venv
+
+python -m pip install -r requirements.txt
+
+python -m pip install -e . --no-deps --no-build-isolation
+
+python -m unittest discover -s tests -v
+
+python src/pipeline.py --output-dir build
+
+python src/enrichment.py
+
+Activa el entorno antes de instalar: en PowerShell, .venv\Scripts\Activate.ps1; en Linux/macOS, source .venv/bin/activate. El último comando permite ejecutar solo enriquecimiento desde cleaned.duckdb; la cadena completa incluye además ingesta, limpieza y SQLite. El README proporciona el comando de clonación y rutas de cada salida.
+
+Los artefactos de Actions se retienen 30 días; no son una política de respaldo permanente. Las evidencias versionadas y el ZIP de entrega preservan el estado evaluado. docs/ENTREGA.md registra la URL de la ejecución remota y su resultado comprobado (GitHub, s. f.).
+
+12. Resultados, conclusiones y mejoras
+
+Las pruebas del modelo introducen un valor solar diario inconsistente, un booleano inválido, una hora duplicada y una FK sin padre; verifican su rechazo. También comprueban los ceros iniciales en DIVIPOLA y la reconstrucción completa. Las pruebas previas ejercitan nulos, duplicados, unidades, claves de cruce, zonas horarias y conservación de datos. No se realizó una prueba de carga distribuida ni se midió una mejora predictiva.
+
+12.1 Conclusiones
+
+La arquitectura mantiene continuidad entre las entregas: se puede recorrer desde una fila enriquecida hasta la observación limpia y la extracción de EA1. Las comprobaciones de igualdad convierten esa trazabilidad en una condición ejecutable, no solo en una explicación. El modelo SQLite añade restricciones físicas que faltaban en el esquema original y separa las medidas diarias de las horarias.
+
+La principal limitación es de alcance: cinco ciudades, un año y energía simulada no permiten inferir demanda real de Colombia. La repetición de datos de referencia, la ejecución en memoria y las instantáneas versionadas son manejables aquí, pero no constituyen una arquitectura productiva de gran escala.
+
+12.2 Recomendaciones
+
+Para una nube real, mover las instantáneas a almacenamiento de objetos versionado, usar Parquet particionado por fecha y revisar un almacén analítico administrado. Agregar autenticación con privilegio mínimo, gestión de secretos, respaldo y recuperación. Medir tiempos, RAM y concurrencia antes de migrar a PySpark. Incorporar ingesta incremental con reintentos, controles de esquema y un catálogo de procedencia.
+
+Antes del modelado, obtener mediciones energéticas legítimas o mantener explícito el experimento sintético; dividir por tiempo, recalcular escalas en entrenamiento y excluir atributos diarios aún no disponibles al momento de predecir. Las mejoras propuestas son trabajo futuro, no capacidades ya desplegadas.
+
+Bibliografía
+
+Apache Software Foundation. (s. f.). Cluster mode overview.https://spark.apache.org/docs/latest/cluster-overview.html
+
+DuckDB Foundation. (s. f.). Why DuckDB.https://duckdb.org/why_duckdb
+
+GitHub. (s. f.). Workflow artifacts.https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts
+
+Open-Meteo. (s. f.). Historical weather API.https://open-meteo.com/en/docs/historical-weather-api
+
+pandas development team. (s. f.-a). pandas.DataFrame.merge.https://pandas.pydata.org/pandas-docs/version/2.3/reference/api/pandas.DataFrame.merge.html
+
+pandas development team. (s. f.-b). Scaling to large datasets.https://pandas.pydata.org/pandas-docs/version/2.3/user_guide/scale.html
+
+SQLite. (s. f.-a). SQLite foreign key support.https://www.sqlite.org/foreignkeys.html
+
+SQLite. (s. f.-b). Datatypes in SQLite.https://www.sqlite.org/datatype3.html
+
+SQLite. (s. f.-c). Appropriate uses for SQLite.https://www.sqlite.org/whentouse.html
+
+Clavijo Correa, J. S. (2026a). Preprocesamiento y limpieza de datos en plataforma de Big Data en la nube [Código fuente y evidencias]. GitHub.https://github.com/JSebastianCCorrea/Preprocesamiento_Limpieza_de_Datos_en_Plataforma_de_Big_Data_en_la_Nube
+
+Clavijo Correa, J. S. (2026b). Enriquecimiento de datos en plataforma Big Data en la nube [Código fuente y evidencias]. GitHub.https://github.com/JSebastianCCorrea/Enriquecimiento_Datos_Plataforma_Big_Data_Nube
+
+Materiales y fuentes de datos
+
+La revisión funcional usa el código y las evidencias locales de EA1, EA2 y enriquecimiento. La consigna y su imagen de estructura fueron suministradas en el chat; los enlaces del aula requieren acceso y no se atribuye contenido adicional no consultado. FUENTES.md y src/sources/source_manifest.json identifican las consultas DANE, Nager.Date y Open-Meteo, sus licencias, formatos preparados y doce respuestas conservadas. No se reproducen credenciales ni datos personales.

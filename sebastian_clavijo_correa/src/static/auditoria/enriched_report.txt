@@ -1,0 +1,41 @@
+AUDITORÍA DEL ENRIQUECIMIENTO
+Ejecución UTC: 2026-10-01T02:03:20.764125+00:00
+Registros antes: 43,800. Registros después: 43,800.
+Columnas: 32 -> 63. Valores originales conservados: sí.
+Base DuckDB leída sin escritura. SHA-256: 8e129a32d3c25831e8f977e13b4e863da7c140cf7816eaed7ff47359ff278fa7
+Clave del conjunto: ciudad y hora local America/Bogota.
+CSV original EA2 SHA-256: e61e5770af3c2b895eedf0f1e5c1f2a2c2acb7825b68dc25969d39824b3894d6
+Commit EA2: a4b8a1a5021b58104ca92b840533eb5bbf4170ed
+
+CRUCES POR FUENTE
+city_geography.json: LEFT JOIN many_to_one por city_key; fuente=5, coincidentes=43800, sin correspondencia=0, claves fuente sin uso=0, celdas adicionales nulas=0. Filas 43800 -> 43800.
+Observaciones: Elevación del punto geográfico de GeoNames, no del centro de rejilla meteorológica ni promedio municipal. Se escoge la coincidencia homónima de Colombia más cercana a la coordenada solicitada en EA2. Se excluye población porque la respuesta no indica la fecha de referencia de esa cifra.
+calendar_2025.xlsx: LEFT JOIN many_to_one por local_date; fuente=365, coincidentes=43800, sin correspondencia=0, claves fuente sin uso=0, celdas adicionales nulas=0. Filas 43800 -> 43800.
+Observaciones: La respuesta contiene 18 festividades nacionales en 17 fechas distintas. Se agrupan los nombres que coinciden en una fecha. Calendario completo de 365 fechas locales. is_weekend se deriva del calendario gregoriano; una fecha sin festividad se marca No festivo. Hoja calendar. No representa tarifas eléctricas, jornadas laborales ni excepciones sectoriales. API comunitaria, no autoridad normativa.
+solar_daily_2025.csv: LEFT JOIN many_to_one por city_key, local_date; fuente=1825, coincidentes=43800, sin correspondencia=0, claves fuente sin uso=0, celdas adicionales nulas=0. Filas 43800 -> 43800.
+Observaciones: Modelo era5 fijado. Datos de reanálisis en rejilla, no observaciones de una estación urbana. Agregados del día completo en America/Bogota. Solo uso retrospectivo: no están disponibles al comenzar el día y pueden producir fuga temporal en pronósticos. Se añaden variables solares. No se sustituyen las variables de EA2, cuyo modelo original no fue fijado. Radiación: MJ/m² por día. Duración de luz y sol: segundos. Valores ausentes permanecen ausentes.
+municipalities.html: LEFT JOIN many_to_one por city_key; fuente=5, coincidentes=43800, sin correspondencia=0, claves fuente sin uso=0, celdas adicionales nulas=0. Filas 43800 -> 43800.
+Observaciones: HTML preparado para la actividad a partir del JSON oficial. No se presenta como una página HTML descargada del DANE. Códigos DIVIPOLA son texto y no equivalen a city_id local. Correspondencia revisada para las cinco ciudades. El servicio se denomina MGN 2025; MPIO_NANO de Bucaramanga indica 2024. Se conserva ese año sin imputarlo.
+thermal_parameters.xml: LEFT JOIN many_to_one por city_key; fuente=5, coincidentes=43800, sin correspondencia=0, claves fuente sin uso=0, celdas adicionales nulas=0. Filas 43800 -> 43800.
+Observaciones: Referencia de 18 °C fijada de manera ilustrativa para las cinco ciudades. No es una norma, medición ni umbral calibrado de confort. Las diferencias térmicas derivadas no prueban consumo o causalidad.
+hour_bands.txt: LEFT JOIN many_to_one por hour; fuente=24, coincidentes=43800, sin correspondencia=0, claves fuente sin uso=0, celdas adicionales nulas=0. Filas 43800 -> 43800.
+Observaciones: TSV UTF-8 con clasificación propia: 00–05 madrugada, 06–11 mañana, 12–17 tarde y 18–23 noche. Se usa la hora local de America/Bogota. No es una franja tarifaria ni clasificación oficial de demanda.
+
+TRANSFORMACIONES Y CONTROLES
+Ciudades: se ignoran tildes, mayúsculas y espacios únicamente en la clave auxiliar. city original se conserva.
+Fechas: cruce diario según America/Bogota, sin trasladar las horas nocturnas al día UTC siguiente.
+DIVIPOLA: códigos tratados como texto para conservar ceros iniciales; city_id es una clave local de EA1.
+Unidades: MJ/m²/día divididos por 3,6 = kWh/m²/día; segundos solares divididos por 3.600 = horas.
+Diferencias térmicas: máximo(temperatura - referencia, 0) y máximo(referencia - temperatura, 0).
+Referencia térmica y franjas horarias: parámetros académicos, no mediciones, tarifas ni normas de confort.
+No se eliminan filas ni se imputan mediciones adicionales. Una clave de fuente repetida detiene la ejecución.
+Filas incompletas: 0; se preservan y señalan con enrichment_status.
+Muestra: 1200 filas, 60 estratos ciudad-año-mes, cuota máxima 20, semilla 42.
+La cuota no es una muestra aleatoria simple global. sample_coverage.csv incluye los pesos por estrato.
+
+INTERPRETACIÓN
+energy_kwh es sintética en toda la base. No se midió ahorro ni mejora predictiva en esta actividad.
+La radiación diaria describe el día completo: no usarla para anticipar una hora de ese mismo día.
+Antes de modelar, dividir temporalmente y recalcular escalados de EA2 usando solo entrenamiento.
+Las fuentes meteorológicas son productos de modelo/reanálisis, no sensores municipales.
+Consultar FUENTES.md: instantáneas, versiones, año del registro DIVIPOLA y licencias.

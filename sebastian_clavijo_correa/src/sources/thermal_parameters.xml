@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+<parameters purpose="academic_illustration" unit="degree_Celsius">
+  <record>
+    <city>Barranquilla</city>
+    <reference_temperature_c>18.0</reference_temperature_c>
+    <parameter_scope>academic_illustration</parameter_scope>
+  </record>
+  <record>
+    <city>Bogota</city>
+    <reference_temperature_c>18.0</reference_temperature_c>
+    <parameter_scope>academic_illustration</parameter_scope>
+  </record>
+  <record>
+    <city>Bucaramanga</city>
+    <reference_temperature_c>18.0</reference_temperature_c>
+    <parameter_scope>academic_illustration</parameter_scope>
+  </record>
+  <record>
+    <city>Cali</city>
+    <reference_temperature_c>18.0</reference_temperature_c>
+    <parameter_scope>academic_illustration</parameter_scope>
+  </record>
+  <record>
+    <city>Medellin</city>
+    <reference_temperature_c>18.0</reference_temperature_c>
+    <parameter_scope>academic_illustration</parameter_scope>
+  </record>
+</parameters>

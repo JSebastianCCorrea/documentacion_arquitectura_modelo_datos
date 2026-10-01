@@ -1,0 +1,30 @@
+test_real_historical_sources_preserve_all_rows_and_sample_contract (test_enrichment.EndToEndTests.test_real_historical_sources_preserve_all_rows_and_sample_contract) ... ok
+test_small_run_preserves_database_and_exports_equivalent_csv_excel (test_enrichment.EndToEndTests.test_small_run_preserves_database_and_exports_equivalent_csv_excel) ... ok
+test_60_strata_have_20_reproducible_observations_each (test_enrichment.SamplingTests.test_60_strata_have_20_reproducible_observations_each) ... ok
+test_nonpositive_quota_is_rejected (test_enrichment.SamplingTests.test_nonpositive_quota_is_rejected) ... ok
+test_small_group_is_kept_in_full_with_weight_one (test_enrichment.SamplingTests.test_small_group_is_kept_in_full_with_weight_one) ... ok
+test_calendar_fields_must_agree_with_local_time (test_enrichment.SourceAndJoinTests.test_calendar_fields_must_agree_with_local_time) ... ok
+test_city_normalization_handles_accents_case_and_spacing (test_enrichment.SourceAndJoinTests.test_city_normalization_handles_accents_case_and_spacing) ... ok
+test_duplicate_base_city_hour_is_rejected (test_enrichment.SourceAndJoinTests.test_duplicate_base_city_hour_is_rejected) ... ok
+test_duplicate_keys_in_each_source_stop_many_to_one_join (test_enrichment.SourceAndJoinTests.test_duplicate_keys_in_each_source_stop_many_to_one_join) ... ok
+test_duplicate_source_row_is_rejected (test_enrichment.SourceAndJoinTests.test_duplicate_source_row_is_rejected) ... ok
+test_invalid_base_temperatures_are_rejected (test_enrichment.SourceAndJoinTests.test_invalid_base_temperatures_are_rejected) ... ok
+test_late_local_hour_uses_local_date_even_when_utc_is_next_day (test_enrichment.SourceAndJoinTests.test_late_local_hour_uses_local_date_even_when_utc_is_next_day) ... ok
+test_matched_source_with_missing_payload_is_still_incomplete (test_enrichment.SourceAndJoinTests.test_matched_source_with_missing_payload_is_still_incomplete) ... ok
+test_missing_coverage_preserves_rows_and_marks_incomplete (test_enrichment.SourceAndJoinTests.test_missing_coverage_preserves_rows_and_marks_incomplete) ... ok
+test_original_32_columns_and_source_frames_remain_unchanged (test_enrichment.SourceAndJoinTests.test_original_32_columns_and_source_frames_remain_unchanged) ... ok
+test_payload_collision_cannot_overwrite_base_column (test_enrichment.SourceAndJoinTests.test_payload_collision_cannot_overwrite_base_column) ... ok
+test_reads_six_formats_and_preserves_leading_zero_codes (test_enrichment.SourceAndJoinTests.test_reads_six_formats_and_preserves_leading_zero_codes) ... ok
+test_solar_units_convert_mj_and_seconds (test_enrichment.SourceAndJoinTests.test_solar_units_convert_mj_and_seconds) ... ok
+test_thermal_reference_18_has_distinct_below_equal_and_above_cases (test_enrichment.SourceAndJoinTests.test_thermal_reference_18_has_distinct_below_equal_and_above_cases) ... ok
+test_hash_mismatch_stops_run_before_writing_outputs (test_enrichment.SourceFileValidationTests.test_hash_mismatch_stops_run_before_writing_outputs) ... ok
+test_invalid_solar_values_and_durations_are_rejected (test_enrichment.SourceFileValidationTests.test_invalid_solar_values_and_durations_are_rejected) ... ok
+test_manifest_must_identify_every_required_source (test_enrichment.SourceFileValidationTests.test_manifest_must_identify_every_required_source) ... ok
+test_municipality_and_department_codes_must_correspond (test_enrichment.SourceFileValidationTests.test_municipality_and_department_codes_must_correspond) ... ok
+test_normalization_cannot_hide_duplicate_city_keys (test_enrichment.SourceFileValidationTests.test_normalization_cannot_hide_duplicate_city_keys) ... ok
+test_unknown_calendar_boolean_is_rejected (test_enrichment.SourceFileValidationTests.test_unknown_calendar_boolean_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 14.162s
+
+OK

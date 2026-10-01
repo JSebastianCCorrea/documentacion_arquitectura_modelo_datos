@@ -1,0 +1,1 @@
+city_id,time_id,observation_time,city,latitude,longitude,temperature_c,humidity_pct,precipitation_mm,wind_speed_kmh,energy_kwh,synthetic_energy,source_row,rejection_reason

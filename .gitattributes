@@ -1,0 +1,15 @@
+* text=auto
+*.py text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.sql text eol=lf
+**/src/data/** -text
+**/src/sources/** -text
+**/src/static/** -text
+**/src/xlsx/** -text
+*.toml text eol=lf
+*.db binary
+*.duckdb binary
+*.sqlite binary
+*.xlsx binary
+*.pdf binary

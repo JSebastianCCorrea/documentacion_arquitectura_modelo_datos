@@ -1,0 +1,13 @@
+INTEGRACIÓN COMPLETA
+status: PASS
+execution_utc: 2026-10-01T01:49:22.795022+00:00
+ingestion_equals_ea1: True
+cleaning_equals_ea2_bytes: True
+enrichment_equals_previous_bytes: True
+ea1_sha256: f376669aaed6713622ef74c4ab8d7af3362626eb59fbddb380a43e04e2587d4a
+cleaned_csv_sha256: e61e5770af3c2b895eedf0f1e5c1f2a2c2acb7825b68dc25969d39824b3894d6
+enriched_csv_sha256: f5698168dfe2821965284afa065c777bfc98af73bb78de7a046f0460f2fd3619
+rows: 43800
+columns: 63
+sqlite_roundtrip_exact: True
+sqlite_sha256: 3f5c251ad58990f15b1ee424d337a514e574ffbea66a96f3c65d84586e6100ea

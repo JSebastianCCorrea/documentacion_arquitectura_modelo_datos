@@ -1,0 +1,62 @@
+test_canonical_types_local_hour_and_input_preservation (test_cleaning.CleaningTests.test_canonical_types_local_hour_and_input_preservation)
+Normalizar nombres y tipos debe conservar la hora local y el DataFrame recibido. ... ok
+test_cleaning_repeated_on_same_input_is_deterministic (test_cleaning.CleaningTests.test_cleaning_repeated_on_same_input_is_deterministic)
+Repetir la limpieza sobre la misma entrada debe producir el mismo resultado. ... ok
+test_conflicting_natural_key_rejects_every_variant (test_cleaning.CleaningTests.test_conflicting_natural_key_rejects_every_variant)
+Ante dos valores distintos para la misma ciudad y hora, no se elige uno al azar. ... ok
+test_constant_series_does_not_produce_nonfinite_scaled_values (test_cleaning.CleaningTests.test_constant_series_does_not_produce_nonfinite_scaled_values)
+Un grupo constante no debe producir infinitos al escalar sus valores. ... ok
+test_distinct_invalid_values_do_not_become_false_duplicates (test_cleaning.CleaningTests.test_distinct_invalid_values_do_not_become_false_duplicates)
+Dos valores inv�lidos distintos siguen siendo un conflicto despu�s de convertirlos. ... ok
+test_exact_duplicates_removed_after_canonicalization (test_cleaning.CleaningTests.test_exact_duplicates_removed_after_canonicalization)
+Un cambio de espacios o de formato num�rico no crea una observaci�n distinta. ... ok
+test_invalid_or_nonfinite_metrics_use_the_same_imputation_rules (test_cleaning.CleaningTests.test_invalid_or_nonfinite_metrics_use_the_same_imputation_rules)
+Los valores fuera de dominio usan la misma regla que un dato faltante. ... ok
+test_invalid_required_identifiers_and_metadata_are_rejected (test_cleaning.CleaningTests.test_invalid_required_identifiers_and_metadata_are_rejected)
+Una fila sin identidad, fecha o procedencia v�lida debe quedar en rechazos. ... ok
+test_medians_are_calculated_within_city_and_month (test_cleaning.CleaningTests.test_medians_are_calculated_within_city_and_month)
+La mediana no debe mezclar observaciones de otra ciudad o de otro mes. ... ok
+test_missing_donor_does_not_fall_back_to_other_city_or_month (test_cleaning.CleaningTests.test_missing_donor_does_not_fall_back_to_other_city_or_month)
+Sin valores v�lidos en su grupo, se rechaza la fila en vez de tomar otra mediana. ... ok
+test_physically_valid_iqr_outlier_is_kept_and_flagged (test_cleaning.CleaningTests.test_physically_valid_iqr_outlier_is_kept_and_flagged)
+Una temperatura poco habitual se se�ala sin borrar un valor f�sicamente v�lido. ... ok
+test_precipitation_unknown_is_not_replaced_with_zero_or_median (test_cleaning.CleaningTests.test_precipitation_unknown_is_not_replaced_with_zero_or_median)
+Una precipitaci�n desconocida no permite afirmar que no llovi�. ... ok
+test_stratification_small_groups_determinism_and_no_input_mutation (test_cleaning.RepresentativeSampleTests.test_stratification_small_groups_determinism_and_no_input_mutation)
+La muestra respeta cada grupo y se puede repetir con la misma semilla. ... ok
+test_real_historical_sources_preserve_all_rows_and_sample_contract (test_enrichment.EndToEndTests.test_real_historical_sources_preserve_all_rows_and_sample_contract) ... ok
+test_small_run_preserves_database_and_exports_equivalent_csv_excel (test_enrichment.EndToEndTests.test_small_run_preserves_database_and_exports_equivalent_csv_excel) ... ok
+test_60_strata_have_20_reproducible_observations_each (test_enrichment.SamplingTests.test_60_strata_have_20_reproducible_observations_each) ... ok
+test_nonpositive_quota_is_rejected (test_enrichment.SamplingTests.test_nonpositive_quota_is_rejected) ... ok
+test_small_group_is_kept_in_full_with_weight_one (test_enrichment.SamplingTests.test_small_group_is_kept_in_full_with_weight_one) ... ok
+test_calendar_fields_must_agree_with_local_time (test_enrichment.SourceAndJoinTests.test_calendar_fields_must_agree_with_local_time) ... ok
+test_city_normalization_handles_accents_case_and_spacing (test_enrichment.SourceAndJoinTests.test_city_normalization_handles_accents_case_and_spacing) ... ok
+test_duplicate_base_city_hour_is_rejected (test_enrichment.SourceAndJoinTests.test_duplicate_base_city_hour_is_rejected) ... ok
+test_duplicate_keys_in_each_source_stop_many_to_one_join (test_enrichment.SourceAndJoinTests.test_duplicate_keys_in_each_source_stop_many_to_one_join) ... ok
+test_duplicate_source_row_is_rejected (test_enrichment.SourceAndJoinTests.test_duplicate_source_row_is_rejected) ... ok
+test_invalid_base_temperatures_are_rejected (test_enrichment.SourceAndJoinTests.test_invalid_base_temperatures_are_rejected) ... ok
+test_late_local_hour_uses_local_date_even_when_utc_is_next_day (test_enrichment.SourceAndJoinTests.test_late_local_hour_uses_local_date_even_when_utc_is_next_day) ... ok
+test_matched_source_with_missing_payload_is_still_incomplete (test_enrichment.SourceAndJoinTests.test_matched_source_with_missing_payload_is_still_incomplete) ... ok
+test_missing_coverage_preserves_rows_and_marks_incomplete (test_enrichment.SourceAndJoinTests.test_missing_coverage_preserves_rows_and_marks_incomplete) ... ok
+test_original_32_columns_and_source_frames_remain_unchanged (test_enrichment.SourceAndJoinTests.test_original_32_columns_and_source_frames_remain_unchanged) ... ok
+test_payload_collision_cannot_overwrite_base_column (test_enrichment.SourceAndJoinTests.test_payload_collision_cannot_overwrite_base_column) ... ok
+test_reads_six_formats_and_preserves_leading_zero_codes (test_enrichment.SourceAndJoinTests.test_reads_six_formats_and_preserves_leading_zero_codes) ... ok
+test_solar_units_convert_mj_and_seconds (test_enrichment.SourceAndJoinTests.test_solar_units_convert_mj_and_seconds) ... ok
+test_thermal_reference_18_has_distinct_below_equal_and_above_cases (test_enrichment.SourceAndJoinTests.test_thermal_reference_18_has_distinct_below_equal_and_above_cases) ... ok
+test_hash_mismatch_stops_run_before_writing_outputs (test_enrichment.SourceFileValidationTests.test_hash_mismatch_stops_run_before_writing_outputs) ... ok
+test_invalid_solar_values_and_durations_are_rejected (test_enrichment.SourceFileValidationTests.test_invalid_solar_values_and_durations_are_rejected) ... ok
+test_manifest_must_identify_every_required_source (test_enrichment.SourceFileValidationTests.test_manifest_must_identify_every_required_source) ... ok
+test_municipality_and_department_codes_must_correspond (test_enrichment.SourceFileValidationTests.test_municipality_and_department_codes_must_correspond) ... ok
+test_normalization_cannot_hide_duplicate_city_keys (test_enrichment.SourceFileValidationTests.test_normalization_cannot_hide_duplicate_city_keys) ... ok
+test_unknown_calendar_boolean_is_rejected (test_enrichment.SourceFileValidationTests.test_unknown_calendar_boolean_is_rejected) ... ok
+test_boolean_check_and_duplicate_hour (test_model.ModelTests.test_boolean_check_and_duplicate_hour) ... ok
+test_complete_sqlite_roundtrip (test_model.ModelTests.test_complete_sqlite_roundtrip) ... ok
+test_daily_solar_is_not_multiplied_by_hours (test_model.ModelTests.test_daily_solar_is_not_multiplied_by_hours) ... ok
+test_foreign_key_prevents_unknown_date (test_model.ModelTests.test_foreign_key_prevents_unknown_date) ... ok
+test_inconsistent_daily_value_is_rejected (test_model.ModelTests.test_inconsistent_daily_value_is_rejected) ... ok
+test_municipality_codes_remain_text (test_model.ModelTests.test_municipality_codes_remain_text) ... ok
+
+----------------------------------------------------------------------
+Ran 44 tests in 15.816s
+
+OK

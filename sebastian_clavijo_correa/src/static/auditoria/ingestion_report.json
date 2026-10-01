@@ -1,0 +1,21 @@
+{
+  "mode": "replay_archived_api_responses",
+  "raw_rows": 43800,
+  "retained_rows": 43800,
+  "tables": {
+    "staging_weather": 43800,
+    "dim_city": 5,
+    "dim_time": 8760,
+    "fact_weather_energy": 43800
+  },
+  "raw_sha256": {
+    "barranquilla_weather.json": "2a8678edca287e5741089272111cc7484ed311417dd4f066c7811d309c5bc895",
+    "bogota_weather.json": "91232f011f22b17b1d99b60898620b7b2475ea12f66f0ce9d13c1bcd28034a81",
+    "bucaramanga_weather.json": "3e7d31e55982a6ec09c4e97493b657891bca5dfca127cec3df62f2a60ca801cd",
+    "cali_weather.json": "d8f5b566add868b92ea05651266d509656f84750027b4542eb9fa784fb99dd0e",
+    "medellin_weather.json": "0d29f48819bbd00439df27f4aa9c673c19b4ce8fa95b5295b2de90f54e5c5a6b"
+  },
+  "live_api_called": false,
+  "synthetic_energy_seed": 42,
+  "equals_ea1_snapshot": true
+}

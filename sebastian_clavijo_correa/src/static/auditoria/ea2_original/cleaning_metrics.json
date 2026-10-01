@@ -1,0 +1,578 @@
+{
+  "before": {
+    "rows": 43800,
+    "columns": 12,
+    "nulls": {
+      "city_id": 0,
+      "time_id": 0,
+      "observation_time": 0,
+      "city": 0,
+      "latitude": 0,
+      "longitude": 0,
+      "temperature_c": 0,
+      "humidity_pct": 0,
+      "precipitation_mm": 0,
+      "wind_speed_kmh": 0,
+      "energy_kwh": 0,
+      "synthetic_energy": 0
+    },
+    "dtypes": {
+      "city_id": "int64",
+      "time_id": "int64",
+      "observation_time": "datetime64[us]",
+      "city": "object",
+      "latitude": "float64",
+      "longitude": "float64",
+      "temperature_c": "float64",
+      "humidity_pct": "int64",
+      "precipitation_mm": "float64",
+      "wind_speed_kmh": "float64",
+      "energy_kwh": "float64",
+      "synthetic_energy": "bool"
+    },
+    "exact_duplicate_rows": 0,
+    "duplicate_key_rows": 0,
+    "statistics": {
+      "temperature_c": {
+        "count": 43800.0,
+        "mean": 21.325358447488583,
+        "std": 5.3396122767072285,
+        "min": 3.9,
+        "25%": 18.3,
+        "50%": 21.1,
+        "75%": 25.5,
+        "max": 36.5
+      },
+      "humidity_pct": {
+        "count": 43800.0,
+        "mean": 81.79102739726028,
+        "std": 15.065341123149375,
+        "min": 24.0,
+        "25%": 71.0,
+        "50%": 86.0,
+        "75%": 95.0,
+        "max": 100.0
+      },
+      "precipitation_mm": {
+        "count": 43800.0,
+        "mean": 0.27011187214611876,
+        "std": 0.9419411937291048,
+        "min": 0.0,
+        "25%": 0.0,
+        "50%": 0.0,
+        "75%": 0.1,
+        "max": 24.8
+      },
+      "wind_speed_kmh": {
+        "count": 43800.0,
+        "mean": 5.187077625570776,
+        "std": 4.0615841500899785,
+        "min": 0.0,
+        "25%": 2.3,
+        "50%": 4.1,
+        "75%": 6.8,
+        "max": 28.6
+      },
+      "energy_kwh": {
+        "count": 43800.0,
+        "mean": 131.46030936073058,
+        "std": 21.31192865124758,
+        "min": 82.98,
+        "25%": 115.79,
+        "50%": 128.73,
+        "75%": 144.4325,
+        "max": 223.01
+      }
+    }
+  },
+  "operations": {
+    "city_values_normalized": 0,
+    "invalid_datetimes": 0,
+    "numeric_parse_failures": {
+      "city_id": 0,
+      "time_id": 0,
+      "latitude": 0,
+      "longitude": 0,
+      "temperature_c": 0,
+      "humidity_pct": 0,
+      "precipitation_mm": 0,
+      "wind_speed_kmh": 0,
+      "energy_kwh": 0
+    },
+    "out_of_domain_values": {
+      "latitude": 0,
+      "longitude": 0,
+      "temperature_c": 0,
+      "humidity_pct": 0,
+      "precipitation_mm": 0,
+      "wind_speed_kmh": 0,
+      "energy_kwh": 0
+    },
+    "exact_duplicates_removed": 0,
+    "duplicate_source_rows": [],
+    "conflicting_key_rows": 0,
+    "imputed_cells": {
+      "temperature_c": 0,
+      "humidity_pct": 0,
+      "wind_speed_kmh": 0,
+      "energy_kwh": 0
+    },
+    "rows_rejected": 0,
+    "rejection_reasons": {}
+  },
+  "outliers": {
+    "method": "Tukey 1.5 IQR por ciudad; IQR cero no se clasifica",
+    "policy": "Señalar y conservar valores físicamente válidos",
+    "bounds": [
+      {
+        "city": "Barranquilla",
+        "column": "temperature_c",
+        "q1": 26.1,
+        "q3": 29.7,
+        "lower": 20.700000000000003,
+        "upper": 35.099999999999994,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Bogota",
+        "column": "temperature_c",
+        "q1": 11.2,
+        "q3": 17.0,
+        "lower": 2.4999999999999982,
+        "upper": 25.700000000000003,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Bucaramanga",
+        "column": "temperature_c",
+        "q1": 20.2,
+        "q3": 23.8,
+        "lower": 14.799999999999997,
+        "upper": 29.200000000000003,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Cali",
+        "column": "temperature_c",
+        "q1": 19.8,
+        "q3": 24.2,
+        "lower": 13.200000000000003,
+        "upper": 30.799999999999997,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Medellin",
+        "column": "temperature_c",
+        "q1": 17.7,
+        "q3": 23.6,
+        "lower": 8.849999999999996,
+        "upper": 32.45,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Barranquilla",
+        "column": "humidity_pct",
+        "q1": 70.0,
+        "q3": 89.0,
+        "lower": 41.5,
+        "upper": 117.5,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Bogota",
+        "column": "humidity_pct",
+        "q1": 65.0,
+        "q3": 96.0,
+        "lower": 18.5,
+        "upper": 142.5,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Bucaramanga",
+        "column": "humidity_pct",
+        "q1": 76.0,
+        "q3": 92.0,
+        "lower": 52.0,
+        "upper": 116.0,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Cali",
+        "column": "humidity_pct",
+        "q1": 71.0,
+        "q3": 94.0,
+        "lower": 36.5,
+        "upper": 128.5,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Medellin",
+        "column": "humidity_pct",
+        "q1": 68.0,
+        "q3": 99.0,
+        "lower": 21.5,
+        "upper": 145.5,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Barranquilla",
+        "column": "precipitation_mm",
+        "q1": 0.0,
+        "q3": 0.0,
+        "lower": 0.0,
+        "upper": 0.0,
+        "skipped_zero_iqr": true
+      },
+      {
+        "city": "Bogota",
+        "column": "precipitation_mm",
+        "q1": 0.0,
+        "q3": 0.1,
+        "lower": -0.15000000000000002,
+        "upper": 0.25,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Bucaramanga",
+        "column": "precipitation_mm",
+        "q1": 0.0,
+        "q3": 0.2,
+        "lower": -0.30000000000000004,
+        "upper": 0.5,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Cali",
+        "column": "precipitation_mm",
+        "q1": 0.0,
+        "q3": 0.2,
+        "lower": -0.30000000000000004,
+        "upper": 0.5,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Medellin",
+        "column": "precipitation_mm",
+        "q1": 0.0,
+        "q3": 0.1,
+        "lower": -0.15000000000000002,
+        "upper": 0.25,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Barranquilla",
+        "column": "wind_speed_kmh",
+        "q1": 5.3,
+        "q3": 13.0,
+        "lower": -6.250000000000001,
+        "upper": 24.55,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Bogota",
+        "column": "wind_speed_kmh",
+        "q1": 2.3,
+        "q3": 6.7,
+        "lower": -4.300000000000001,
+        "upper": 13.3,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Bucaramanga",
+        "column": "wind_speed_kmh",
+        "q1": 2.7,
+        "q3": 6.1,
+        "lower": -2.3999999999999995,
+        "upper": 11.2,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Cali",
+        "column": "wind_speed_kmh",
+        "q1": 1.7,
+        "q3": 4.4,
+        "lower": -2.3500000000000005,
+        "upper": 8.450000000000001,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Medellin",
+        "column": "wind_speed_kmh",
+        "q1": 1.8,
+        "q3": 5.1,
+        "lower": -3.1499999999999995,
+        "upper": 10.049999999999999,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Barranquilla",
+        "column": "energy_kwh",
+        "q1": 133.14,
+        "q3": 154.0875,
+        "lower": 101.71874999999996,
+        "upper": 185.50875000000002,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Bogota",
+        "column": "energy_kwh",
+        "q1": 140.5675,
+        "q3": 166.6525,
+        "lower": 101.43999999999998,
+        "upper": 205.78000000000003,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Bucaramanga",
+        "column": "energy_kwh",
+        "q1": 101.33,
+        "q3": 115.4125,
+        "lower": 80.20625000000001,
+        "upper": 136.53625,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Cali",
+        "column": "energy_kwh",
+        "q1": 117.87,
+        "q3": 133.61,
+        "lower": 94.25999999999999,
+        "upper": 157.22000000000003,
+        "skipped_zero_iqr": false
+      },
+      {
+        "city": "Medellin",
+        "column": "energy_kwh",
+        "q1": 114.22,
+        "q3": 129.0425,
+        "lower": 91.98625000000001,
+        "upper": 151.27624999999998,
+        "skipped_zero_iqr": false
+      }
+    ],
+    "counts": {
+      "temperature_c": 21,
+      "humidity_pct": 14,
+      "precipitation_mm": 4970,
+      "wind_speed_kmh": 1024,
+      "energy_kwh": 424
+    },
+    "rows_flagged": 6240
+  },
+  "scaling": {
+    "temperature_zscore": {
+      "Barranquilla": {
+        "mean": 27.929931506849314,
+        "std_population": 2.423222220800591
+      },
+      "Bogota": {
+        "mean": 13.98884703196347,
+        "std_population": 3.5056132475561195
+      },
+      "Bucaramanga": {
+        "mean": 21.920045662100456,
+        "std_population": 2.263185111127687
+      },
+      "Cali": {
+        "mean": 22.075091324200912,
+        "std_population": 2.7555656615198925
+      },
+      "Medellin": {
+        "mean": 20.712876712328764,
+        "std_population": 3.5974840191313113
+      }
+    },
+    "energy_zscore": {
+      "Barranquilla": {
+        "mean": 144.38627625570777,
+        "std_population": 15.116827643585626
+      },
+      "Bogota": {
+        "mean": 154.61028881278537,
+        "std_population": 18.216251087210424
+      },
+      "Bucaramanga": {
+        "mean": 109.19272488584475,
+        "std_population": 10.996360851207745
+      },
+      "Cali": {
+        "mean": 126.49064155251142,
+        "std_population": 12.13616064891088
+      },
+      "Medellin": {
+        "mean": 122.62161529680364,
+        "std_population": 11.862353817314812
+      }
+    }
+  },
+  "after": {
+    "rows": 43800,
+    "columns": 32,
+    "nulls": {
+      "city_id": 0,
+      "time_id": 0,
+      "observation_time": 0,
+      "city": 0,
+      "latitude": 0,
+      "longitude": 0,
+      "temperature_c": 0,
+      "humidity_pct": 0,
+      "precipitation_mm": 0,
+      "wind_speed_kmh": 0,
+      "energy_kwh": 0,
+      "synthetic_energy": 0,
+      "source_row": 0,
+      "year": 0,
+      "month": 0,
+      "day": 0,
+      "hour": 0,
+      "imputed_fields": 0,
+      "quality_status": 0,
+      "is_outlier": 0,
+      "outlier_fields": 0,
+      "outlier_temperature_c": 0,
+      "outlier_humidity_pct": 0,
+      "outlier_precipitation_mm": 0,
+      "outlier_wind_speed_kmh": 0,
+      "outlier_energy_kwh": 0,
+      "temperature_zscore": 0,
+      "energy_zscore": 0,
+      "humidity_fraction": 0,
+      "precipitation_log1p": 0,
+      "timezone": 0,
+      "observation_time_utc": 0
+    },
+    "dtypes": {
+      "city_id": "Int64",
+      "time_id": "Int64",
+      "observation_time": "datetime64[us, America/Bogota]",
+      "city": "string",
+      "latitude": "float64",
+      "longitude": "float64",
+      "temperature_c": "float64",
+      "humidity_pct": "float64",
+      "precipitation_mm": "float64",
+      "wind_speed_kmh": "float64",
+      "energy_kwh": "float64",
+      "synthetic_energy": "boolean",
+      "source_row": "int32",
+      "year": "int64",
+      "month": "int64",
+      "day": "int64",
+      "hour": "int64",
+      "imputed_fields": "object",
+      "quality_status": "object",
+      "is_outlier": "bool",
+      "outlier_fields": "object",
+      "outlier_temperature_c": "bool",
+      "outlier_humidity_pct": "bool",
+      "outlier_precipitation_mm": "bool",
+      "outlier_wind_speed_kmh": "bool",
+      "outlier_energy_kwh": "bool",
+      "temperature_zscore": "float64",
+      "energy_zscore": "float64",
+      "humidity_fraction": "float64",
+      "precipitation_log1p": "float64",
+      "timezone": "object",
+      "observation_time_utc": "datetime64[us, UTC]"
+    },
+    "exact_duplicate_rows": 0,
+    "duplicate_key_rows": 0,
+    "statistics": {
+      "temperature_c": {
+        "count": 43800.0,
+        "mean": 21.325358447488583,
+        "std": 5.3396122767072285,
+        "min": 3.9,
+        "25%": 18.3,
+        "50%": 21.1,
+        "75%": 25.5,
+        "max": 36.5
+      },
+      "humidity_pct": {
+        "count": 43800.0,
+        "mean": 81.79102739726028,
+        "std": 15.065341123149375,
+        "min": 24.0,
+        "25%": 71.0,
+        "50%": 86.0,
+        "75%": 95.0,
+        "max": 100.0
+      },
+      "precipitation_mm": {
+        "count": 43800.0,
+        "mean": 0.27011187214611876,
+        "std": 0.9419411937291048,
+        "min": 0.0,
+        "25%": 0.0,
+        "50%": 0.0,
+        "75%": 0.1,
+        "max": 24.8
+      },
+      "wind_speed_kmh": {
+        "count": 43800.0,
+        "mean": 5.187077625570776,
+        "std": 4.0615841500899785,
+        "min": 0.0,
+        "25%": 2.3,
+        "50%": 4.1,
+        "75%": 6.8,
+        "max": 28.6
+      },
+      "energy_kwh": {
+        "count": 43800.0,
+        "mean": 131.46030936073058,
+        "std": 21.31192865124758,
+        "min": 82.98,
+        "25%": 115.79,
+        "50%": 128.73,
+        "75%": 144.4325,
+        "max": 223.01
+      }
+    }
+  },
+  "status": "PASS",
+  "source": {
+    "sha256": "f376669aaed6713622ef74c4ab8d7af3362626eb59fbddb380a43e04e2587d4a",
+    "bytes": 1585152,
+    "tables": {
+      "dim_city": 5,
+      "dim_time": 8760,
+      "fact_weather_energy": 43800,
+      "staging_weather": 43800
+    },
+    "engine": "DuckDB",
+    "read_only": true,
+    "event_timezone": "America/Bogota",
+    "weather_provider": "Open-Meteo Historical Weather API; EA1 no fija models",
+    "energy_origin": "Sintética en EA1 con semilla 42, no mediciones de consumo",
+    "coordinate_semantics": "Coordenadas solicitadas de ciudad, no de la celda meteorológica",
+    "database": "src/db/ingestion.db",
+    "unchanged": true
+  },
+  "execution": {
+    "utc": "2026-09-17T03:31:51.054850+00:00",
+    "python": "3.12.1",
+    "dependencies": {
+      "pandas": "2.3.3",
+      "numpy": "1.26.4",
+      "duckdb": "1.5.5",
+      "openpyxl": "3.1.5"
+    }
+  },
+  "sampling": {
+    "sample_rows": 1200,
+    "strata": 60,
+    "per_group": 20,
+    "seed": 42,
+    "design": "Cuota aleatoria fija por ciudad/año/mes; grupos menores se incluyen completos"
+  },
+  "output_sha256": {
+    "xlsx/cleaned_full.csv": "e61e5770af3c2b895eedf0f1e5c1f2a2c2acb7825b68dc25969d39824b3894d6",
+    "xlsx/cleaned_data.csv": "fad213d88c13c29dafe300a1ccebcaeaaa44d0a13e7494ffc802c5a926c123f6",
+    "xlsx/cleaned_data.xlsx": "fa929178767f922177a570423bf99b3b45dfa198211a360a81a80b4d8a8d13df",
+    "static/auditoria/rejected_records.csv": "2177ece28bd983634b262a9ec86d84d953474d385f814df969c041330afc8eee",
+    "static/auditoria/sample_coverage.csv": "ff6da20a5e34afc68a074756b82a4e7d3dffb1d1c9d38199c8a5a0cb0f6489e8",
+    "static/auditoria/quality_profile.csv": "c47f0d5af1e4b7db426294e172e05ca5040db53e3c1b2d1be5b14108fa7229b4"
+  }
+}

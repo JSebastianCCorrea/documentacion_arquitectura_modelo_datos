@@ -1,0 +1,388 @@
+{
+  "schema_version": 1,
+  "source_snapshot_date_utc": "2026-09-23T04:43:59.753036+00:00",
+  "period": {
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "timezone": "America/Bogota"
+  },
+  "prepared_by": "scripts/prepare_sources.py",
+  "network_required_for_pipeline": false,
+  "sources": [
+    {
+      "id": "city_geography",
+      "format": "JSON",
+      "path": "city_geography.json",
+      "sha256": "d7877e567f460b9e1d9b1462efd5aff330e13311d45d7232268c69b6c7ea0d9a",
+      "rows": 5,
+      "keys": [
+        "city"
+      ],
+      "columns": [
+        "city",
+        "country_code",
+        "geoname_id",
+        "elevation_m"
+      ],
+      "provider": "Open-Meteo / GeoNames",
+      "type": "external_data",
+      "source_urls": [
+        "https://geocoding-api.open-meteo.com/v1/search?name=Barranquilla&count=10&language=es&format=json&countryCode=CO",
+        "https://geocoding-api.open-meteo.com/v1/search?name=Bogota&count=10&language=es&format=json&countryCode=CO",
+        "https://geocoding-api.open-meteo.com/v1/search?name=Bucaramanga&count=10&language=es&format=json&countryCode=CO",
+        "https://geocoding-api.open-meteo.com/v1/search?name=Cali&count=10&language=es&format=json&countryCode=CO",
+        "https://geocoding-api.open-meteo.com/v1/search?name=Medellin&count=10&language=es&format=json&countryCode=CO"
+      ],
+      "retrieved_at_utc": "2026-09-23T04:43:59.223667+00:00",
+      "license": "CC BY 4.0 (API Open-Meteo); atribución GeoNames",
+      "license_url": "https://open-meteo.com/en/licence",
+      "notes": [
+        "Elevación del punto geográfico de GeoNames, no del centro de rejilla meteorológica ni promedio municipal.",
+        "Se escoge la coincidencia homónima de Colombia más cercana a la coordenada solicitada en EA2.",
+        "Se excluye población porque la respuesta no indica la fecha de referencia de esa cifra."
+      ],
+      "raw_paths": [
+        "raw/geocoding_Barranquilla.json",
+        "raw/geocoding_Bogota.json",
+        "raw/geocoding_Bucaramanga.json",
+        "raw/geocoding_Cali.json",
+        "raw/geocoding_Medellin.json"
+      ]
+    },
+    {
+      "id": "calendar",
+      "format": "XLSX",
+      "path": "calendar_2025.xlsx",
+      "sha256": "67910ac34114140be1dcc68ab0866627862dbb96c471e21bf4be3f7e0f8ac73f",
+      "rows": 365,
+      "keys": [
+        "local_date"
+      ],
+      "columns": [
+        "local_date",
+        "holiday_name",
+        "is_holiday",
+        "is_weekend"
+      ],
+      "provider": "Nager.Date",
+      "type": "external_data",
+      "source_urls": [
+        "https://date.nager.at/api/v3/PublicHolidays/2025/CO"
+      ],
+      "retrieved_at_utc": "2026-09-23T04:43:56.925572+00:00",
+      "license": "API para proyectos privados o sin ánimo de lucro; comercial requiere patrocinio. MIT corresponde al software, no equivale a licencia general de los datos.",
+      "license_url": "https://nagerholidays.com/legal/termsofservice",
+      "notes": [
+        "La respuesta contiene 18 festividades nacionales en 17 fechas distintas. Se agrupan los nombres que coinciden en una fecha.",
+        "Calendario completo de 365 fechas locales. is_weekend se deriva del calendario gregoriano; una fecha sin festividad se marca No festivo.",
+        "Hoja calendar. No representa tarifas eléctricas, jornadas laborales ni excepciones sectoriales. API comunitaria, no autoridad normativa."
+      ],
+      "raw_paths": [
+        "raw/holidays_co_2025.json"
+      ]
+    },
+    {
+      "id": "solar_daily",
+      "format": "CSV",
+      "path": "solar_daily_2025.csv",
+      "sha256": "290cee13625e294d2b7cc07c6b76f47382bc8c299bc78e5e037cad26064b1fa2",
+      "rows": 1825,
+      "keys": [
+        "city",
+        "local_date"
+      ],
+      "columns": [
+        "city",
+        "local_date",
+        "shortwave_radiation_sum_mj_m2",
+        "daylight_seconds",
+        "sunshine_seconds"
+      ],
+      "provider": "Open-Meteo / ERA5 (ECMWF, Copernicus C3S)",
+      "type": "external_data",
+      "source_urls": [
+        "https://archive-api.open-meteo.com/v1/archive?latitude=10.9685&longitude=-74.7813&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+        "https://archive-api.open-meteo.com/v1/archive?latitude=4.711&longitude=-74.0721&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+        "https://archive-api.open-meteo.com/v1/archive?latitude=7.1193&longitude=-73.1227&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+        "https://archive-api.open-meteo.com/v1/archive?latitude=3.4516&longitude=-76.532&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+        "https://archive-api.open-meteo.com/v1/archive?latitude=6.2442&longitude=-75.5812&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5"
+      ],
+      "retrieved_at_utc": "2026-09-23T04:43:59.753036+00:00",
+      "license": "CC BY 4.0 (API Open-Meteo)",
+      "license_url": "https://open-meteo.com/en/licence",
+      "notes": [
+        "Modelo era5 fijado. Datos de reanálisis en rejilla, no observaciones de una estación urbana.",
+        "Agregados del día completo en America/Bogota. Solo uso retrospectivo: no están disponibles al comenzar el día y pueden producir fuga temporal en pronósticos.",
+        "Se añaden variables solares. No se sustituyen las variables de EA2, cuyo modelo original no fue fijado.",
+        "Radiación: MJ/m² por día. Duración de luz y sol: segundos. Valores ausentes permanecen ausentes."
+      ],
+      "raw_paths": [
+        "raw/solar_Barranquilla_2025.json",
+        "raw/solar_Bogota_2025.json",
+        "raw/solar_Bucaramanga_2025.json",
+        "raw/solar_Cali_2025.json",
+        "raw/solar_Medellin_2025.json"
+      ]
+    },
+    {
+      "id": "municipalities",
+      "format": "HTML",
+      "path": "municipalities.html",
+      "sha256": "c929444a9a4b188b382ced550ec14e1f75bc33ab63946b2cf8abdb68edcd0dde",
+      "rows": 5,
+      "keys": [
+        "city"
+      ],
+      "columns": [
+        "city",
+        "municipality_code",
+        "municipality_name",
+        "department_code",
+        "department_name",
+        "divipola_year"
+      ],
+      "provider": "Departamento Administrativo Nacional de Estadística (DANE)",
+      "type": "external_data",
+      "source_urls": [
+        "https://portalgis.dane.gov.co/mparcgis/rest/services/Divipola/Serv_DIVIPOLA_MGN_2025/FeatureServer/317/query?where=MPIO_CDPMP+IN+%28%2708001%27%2C%2711001%27%2C%2768001%27%2C%2776001%27%2C%2705001%27%29&outFields=DPTO_CCDGO%2CMPIO_CDPMP%2CMPIO_CNMBRE%2CDPTO_CNMBRE%2CMPIO_NANO&returnGeometry=false&f=pjson"
+      ],
+      "retrieved_at_utc": "2026-09-23T04:43:59.159542+00:00",
+      "license": "CC BY 4.0, condiciones de uso del Geoportal DANE",
+      "license_url": "https://geoportal.dane.gov.co/acerca-del-geoportal/licencia-y-condiciones-de-uso/",
+      "notes": [
+        "HTML preparado para la actividad a partir del JSON oficial. No se presenta como una página HTML descargada del DANE.",
+        "Códigos DIVIPOLA son texto y no equivalen a city_id local. Correspondencia revisada para las cinco ciudades.",
+        "El servicio se denomina MGN 2025; MPIO_NANO de Bucaramanga indica 2024. Se conserva ese año sin imputarlo."
+      ],
+      "raw_paths": [
+        "raw/divipola_2025.json"
+      ]
+    },
+    {
+      "id": "thermal_parameters",
+      "format": "XML",
+      "path": "thermal_parameters.xml",
+      "sha256": "53a0284af7804e3a0fcdd6e1a439bcf3841016ea4cfa3aaa98cb66398d1635a5",
+      "rows": 5,
+      "keys": [
+        "city"
+      ],
+      "columns": [
+        "city",
+        "reference_temperature_c",
+        "parameter_scope"
+      ],
+      "provider": "Elaboración propia para la actividad académica",
+      "type": "authored_catalog",
+      "source_urls": [],
+      "retrieved_at_utc": null,
+      "license": "Catálogo original incluido con el proyecto académico",
+      "license_url": null,
+      "notes": [
+        "Referencia de 18 °C fijada de manera ilustrativa para las cinco ciudades.",
+        "No es una norma, medición ni umbral calibrado de confort. Las diferencias térmicas derivadas no prueban consumo o causalidad."
+      ],
+      "raw_paths": []
+    },
+    {
+      "id": "hour_bands",
+      "format": "TXT",
+      "path": "hour_bands.txt",
+      "sha256": "dfde7ffeffb4cfb3f80b8252549e3bc97a6e8695fd565500c561572b382445ca",
+      "rows": 24,
+      "keys": [
+        "hour"
+      ],
+      "columns": [
+        "hour",
+        "day_period"
+      ],
+      "provider": "Elaboración propia para la actividad académica",
+      "type": "authored_catalog",
+      "source_urls": [],
+      "retrieved_at_utc": null,
+      "license": "Catálogo original incluido con el proyecto académico",
+      "license_url": null,
+      "notes": [
+        "TSV UTF-8 con clasificación propia: 00–05 madrugada, 06–11 mañana, 12–17 tarde y 18–23 noche.",
+        "Se usa la hora local de America/Bogota. No es una franja tarifaria ni clasificación oficial de demanda."
+      ],
+      "raw_paths": []
+    }
+  ],
+  "raw_snapshots": [
+    {
+      "path": "raw/holidays_co_2025.json",
+      "source_url": "https://date.nager.at/api/v3/PublicHolidays/2025/CO",
+      "response_url": "https://date.nager.at/api/v3/PublicHolidays/2025/CO",
+      "retrieved_at_utc": "2026-09-23T04:43:56.925572+00:00",
+      "http_status": 200,
+      "sha256": "d017e58bf0ea09ddee463115e548ebd2b5e32e03cb4163845d2a8de767ceae40"
+    },
+    {
+      "path": "raw/geocoding_Barranquilla.json",
+      "source_url": "https://geocoding-api.open-meteo.com/v1/search?name=Barranquilla&count=10&language=es&format=json&countryCode=CO",
+      "response_url": "https://geocoding-api.open-meteo.com/v1/search?name=Barranquilla&count=10&language=es&format=json&countryCode=CO",
+      "retrieved_at_utc": "2026-09-23T04:43:57.366173+00:00",
+      "http_status": 200,
+      "sha256": "fb08ae0d4440b8c54438fd18fd150a7bea4de6b1fc05bb43fd3d8f11ad0cc171"
+    },
+    {
+      "path": "raw/solar_Barranquilla_2025.json",
+      "source_url": "https://archive-api.open-meteo.com/v1/archive?latitude=10.9685&longitude=-74.7813&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "response_url": "https://archive-api.open-meteo.com/v1/archive?latitude=10.9685&longitude=-74.7813&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "retrieved_at_utc": "2026-09-23T04:43:57.455647+00:00",
+      "http_status": 200,
+      "sha256": "639370dc144ca5bf574924212e80a519ee39eb5667553f8d3bcd0c238cd3689f"
+    },
+    {
+      "path": "raw/geocoding_Bogota.json",
+      "source_url": "https://geocoding-api.open-meteo.com/v1/search?name=Bogota&count=10&language=es&format=json&countryCode=CO",
+      "response_url": "https://geocoding-api.open-meteo.com/v1/search?name=Bogota&count=10&language=es&format=json&countryCode=CO",
+      "retrieved_at_utc": "2026-09-23T04:43:57.668473+00:00",
+      "http_status": 200,
+      "sha256": "4cdcf52f752a0a6a66847765dd265c3ad012079d8a284ed6bae87d60206a9b29"
+    },
+    {
+      "path": "raw/solar_Bogota_2025.json",
+      "source_url": "https://archive-api.open-meteo.com/v1/archive?latitude=4.711&longitude=-74.0721&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "response_url": "https://archive-api.open-meteo.com/v1/archive?latitude=4.711&longitude=-74.0721&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "retrieved_at_utc": "2026-09-23T04:43:58.196001+00:00",
+      "http_status": 200,
+      "sha256": "1a055bbd94ef46b440473feac856ea7c0a3581825f2d735d56d2536b71f052f1"
+    },
+    {
+      "path": "raw/geocoding_Bucaramanga.json",
+      "source_url": "https://geocoding-api.open-meteo.com/v1/search?name=Bucaramanga&count=10&language=es&format=json&countryCode=CO",
+      "response_url": "https://geocoding-api.open-meteo.com/v1/search?name=Bucaramanga&count=10&language=es&format=json&countryCode=CO",
+      "retrieved_at_utc": "2026-09-23T04:43:58.197002+00:00",
+      "http_status": 200,
+      "sha256": "1b41f1fb2e57600c6ea01bd4ff586e697ebd30819a99e418d16206f05f00ce52"
+    },
+    {
+      "path": "raw/solar_Bucaramanga_2025.json",
+      "source_url": "https://archive-api.open-meteo.com/v1/archive?latitude=7.1193&longitude=-73.1227&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "response_url": "https://archive-api.open-meteo.com/v1/archive?latitude=7.1193&longitude=-73.1227&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "retrieved_at_utc": "2026-09-23T04:43:58.492429+00:00",
+      "http_status": 200,
+      "sha256": "ba903ee75e8603be57f12c9b0a3bb8ffa03cc513657bc51bf9eeb437962200f9"
+    },
+    {
+      "path": "raw/geocoding_Cali.json",
+      "source_url": "https://geocoding-api.open-meteo.com/v1/search?name=Cali&count=10&language=es&format=json&countryCode=CO",
+      "response_url": "https://geocoding-api.open-meteo.com/v1/search?name=Cali&count=10&language=es&format=json&countryCode=CO",
+      "retrieved_at_utc": "2026-09-23T04:43:58.926870+00:00",
+      "http_status": 200,
+      "sha256": "d20cb5dd157d014b22674a0a3eb1459008e8b772d8350d86bb8c1d3679121415"
+    },
+    {
+      "path": "raw/solar_Cali_2025.json",
+      "source_url": "https://archive-api.open-meteo.com/v1/archive?latitude=3.4516&longitude=-76.532&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "response_url": "https://archive-api.open-meteo.com/v1/archive?latitude=3.4516&longitude=-76.532&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "retrieved_at_utc": "2026-09-23T04:43:59.022891+00:00",
+      "http_status": 200,
+      "sha256": "038d9fddcfc4a14f08c9abcd3e146090ae6828120075a8df701cdc91f39b7408"
+    },
+    {
+      "path": "raw/geocoding_Medellin.json",
+      "source_url": "https://geocoding-api.open-meteo.com/v1/search?name=Medellin&count=10&language=es&format=json&countryCode=CO",
+      "response_url": "https://geocoding-api.open-meteo.com/v1/search?name=Medellin&count=10&language=es&format=json&countryCode=CO",
+      "retrieved_at_utc": "2026-09-23T04:43:59.223667+00:00",
+      "http_status": 200,
+      "sha256": "8e5b2d83c7e7c622bd62ab28f37be35e4850e3c9c677f50da2e36c91b1392526"
+    },
+    {
+      "path": "raw/solar_Medellin_2025.json",
+      "source_url": "https://archive-api.open-meteo.com/v1/archive?latitude=6.2442&longitude=-75.5812&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "response_url": "https://archive-api.open-meteo.com/v1/archive?latitude=6.2442&longitude=-75.5812&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "retrieved_at_utc": "2026-09-23T04:43:59.753036+00:00",
+      "http_status": 200,
+      "sha256": "c95cf92885a6b940aa1632f1993d3be50f55489ba7f233bed180a66983857e80"
+    },
+    {
+      "path": "raw/divipola_2025.json",
+      "source_url": "https://portalgis.dane.gov.co/mparcgis/rest/services/Divipola/Serv_DIVIPOLA_MGN_2025/FeatureServer/317/query?where=MPIO_CDPMP+IN+%28%2708001%27%2C%2711001%27%2C%2768001%27%2C%2776001%27%2C%2705001%27%29&outFields=DPTO_CCDGO%2CMPIO_CDPMP%2CMPIO_CNMBRE%2CDPTO_CNMBRE%2CMPIO_NANO&returnGeometry=false&f=pjson",
+      "response_url": "https://portalgis.dane.gov.co/mparcgis/rest/services/Divipola/Serv_DIVIPOLA_MGN_2025/FeatureServer/317/query?where=MPIO_CDPMP+IN+%28%2708001%27%2C%2711001%27%2C%2768001%27%2C%2776001%27%2C%2705001%27%29&outFields=DPTO_CCDGO%2CMPIO_CDPMP%2CMPIO_CNMBRE%2CDPTO_CNMBRE%2CMPIO_NANO&returnGeometry=false&f=pjson",
+      "retrieved_at_utc": "2026-09-23T04:43:59.159542+00:00",
+      "http_status": 200,
+      "sha256": "3f80586d7ff448feb1b63c7855dc83653149ba7a5e8d4a37b8b7b29a11cf0c4b"
+    }
+  ],
+  "solar_grid_metadata": {
+    "Barranquilla": {
+      "requested_latitude": 10.9685,
+      "requested_longitude": -74.7813,
+      "response_latitude": 10.75,
+      "response_longitude": -74.75,
+      "response_elevation_m": 21.0,
+      "units": {
+        "time": "iso8601",
+        "shortwave_radiation_sum": "MJ/m²",
+        "daylight_duration": "s",
+        "sunshine_duration": "s"
+      }
+    },
+    "Bogota": {
+      "requested_latitude": 4.711,
+      "requested_longitude": -74.0721,
+      "response_latitude": 4.75,
+      "response_longitude": -74.0,
+      "response_elevation_m": 2557.0,
+      "units": {
+        "time": "iso8601",
+        "shortwave_radiation_sum": "MJ/m²",
+        "daylight_duration": "s",
+        "sunshine_duration": "s"
+      }
+    },
+    "Bucaramanga": {
+      "requested_latitude": 7.1193,
+      "requested_longitude": -73.1227,
+      "response_latitude": 7.25,
+      "response_longitude": -73.25,
+      "response_elevation_m": 969.0,
+      "units": {
+        "time": "iso8601",
+        "shortwave_radiation_sum": "MJ/m²",
+        "daylight_duration": "s",
+        "sunshine_duration": "s"
+      }
+    },
+    "Cali": {
+      "requested_latitude": 3.4516,
+      "requested_longitude": -76.532,
+      "response_latitude": 3.5,
+      "response_longitude": -76.5,
+      "response_elevation_m": 1009.0,
+      "units": {
+        "time": "iso8601",
+        "shortwave_radiation_sum": "MJ/m²",
+        "daylight_duration": "s",
+        "sunshine_duration": "s"
+      }
+    },
+    "Medellin": {
+      "requested_latitude": 6.2442,
+      "requested_longitude": -75.5812,
+      "response_latitude": 6.25,
+      "response_longitude": -75.5,
+      "response_elevation_m": 1476.0,
+      "units": {
+        "time": "iso8601",
+        "shortwave_radiation_sum": "MJ/m²",
+        "daylight_duration": "s",
+        "sunshine_duration": "s"
+      }
+    }
+  },
+  "divipola_record_years": {
+    "Barranquilla": 2025,
+    "Bogota": 2025,
+    "Bucaramanga": 2024,
+    "Cali": 2025,
+    "Medellin": 2025
+  },
+  "external_provider_count": 3,
+  "authored_catalog_count": 2,
+  "reproduction": "python scripts/prepare_sources.py usa snapshots locales. --fetch vuelve a consultar las APIs y cambia el manifiesto."
+}

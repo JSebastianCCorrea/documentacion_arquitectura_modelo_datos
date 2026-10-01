@@ -1,0 +1,25 @@
+stage,column,dtype,nulls,count,mean,std,min,25%,50%,75%,max
+before,city_id,int64,0,,,,,,,,
+before,time_id,int64,0,,,,,,,,
+before,observation_time,datetime64[us],0,,,,,,,,
+before,city,object,0,,,,,,,,
+before,latitude,float64,0,,,,,,,,
+before,longitude,float64,0,,,,,,,,
+before,temperature_c,float64,0,43800.0,21.325358447488583,5.3396122767072285,3.9,18.3,21.1,25.5,36.5
+before,humidity_pct,int64,0,43800.0,81.79102739726028,15.065341123149375,24.0,71.0,86.0,95.0,100.0
+before,precipitation_mm,float64,0,43800.0,0.27011187214611876,0.9419411937291048,0.0,0.0,0.0,0.1,24.8
+before,wind_speed_kmh,float64,0,43800.0,5.187077625570776,4.0615841500899785,0.0,2.3,4.1,6.8,28.6
+before,energy_kwh,float64,0,43800.0,131.46030936073058,21.31192865124758,82.98,115.79,128.73,144.4325,223.01
+before,synthetic_energy,bool,0,,,,,,,,
+after,city_id,Int64,0,,,,,,,,
+after,time_id,Int64,0,,,,,,,,
+after,observation_time,"datetime64[us, America/Bogota]",0,,,,,,,,
+after,city,string,0,,,,,,,,
+after,latitude,float64,0,,,,,,,,
+after,longitude,float64,0,,,,,,,,
+after,temperature_c,float64,0,43800.0,21.325358447488583,5.3396122767072285,3.9,18.3,21.1,25.5,36.5
+after,humidity_pct,float64,0,43800.0,81.79102739726028,15.065341123149375,24.0,71.0,86.0,95.0,100.0
+after,precipitation_mm,float64,0,43800.0,0.27011187214611876,0.9419411937291048,0.0,0.0,0.0,0.1,24.8
+after,wind_speed_kmh,float64,0,43800.0,5.187077625570776,4.0615841500899785,0.0,2.3,4.1,6.8,28.6
+after,energy_kwh,float64,0,43800.0,131.46030936073058,21.31192865124758,82.98,115.79,128.73,144.4325,223.01
+after,synthetic_energy,boolean,0,,,,,,,,

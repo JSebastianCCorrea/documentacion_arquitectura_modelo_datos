@@ -1,0 +1,4 @@
+INGESTA REPRODUCIDA
+Respuestas archivadas de API: 5. Solicitudes HTTP nuevas: 0.
+Filas JSON: 43800. Filas conservadas: 43800.
+Energía sintética con semilla 42. Comparación exacta con la extracción de EA1: PASS.

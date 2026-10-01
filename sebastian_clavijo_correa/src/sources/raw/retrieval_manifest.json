@@ -1,0 +1,100 @@
+{
+  "snapshots": [
+    {
+      "path": "raw/holidays_co_2025.json",
+      "source_url": "https://date.nager.at/api/v3/PublicHolidays/2025/CO",
+      "response_url": "https://date.nager.at/api/v3/PublicHolidays/2025/CO",
+      "retrieved_at_utc": "2026-09-23T04:43:56.925572+00:00",
+      "http_status": 200,
+      "sha256": "d017e58bf0ea09ddee463115e548ebd2b5e32e03cb4163845d2a8de767ceae40"
+    },
+    {
+      "path": "raw/geocoding_Barranquilla.json",
+      "source_url": "https://geocoding-api.open-meteo.com/v1/search?name=Barranquilla&count=10&language=es&format=json&countryCode=CO",
+      "response_url": "https://geocoding-api.open-meteo.com/v1/search?name=Barranquilla&count=10&language=es&format=json&countryCode=CO",
+      "retrieved_at_utc": "2026-09-23T04:43:57.366173+00:00",
+      "http_status": 200,
+      "sha256": "fb08ae0d4440b8c54438fd18fd150a7bea4de6b1fc05bb43fd3d8f11ad0cc171"
+    },
+    {
+      "path": "raw/solar_Barranquilla_2025.json",
+      "source_url": "https://archive-api.open-meteo.com/v1/archive?latitude=10.9685&longitude=-74.7813&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "response_url": "https://archive-api.open-meteo.com/v1/archive?latitude=10.9685&longitude=-74.7813&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "retrieved_at_utc": "2026-09-23T04:43:57.455647+00:00",
+      "http_status": 200,
+      "sha256": "639370dc144ca5bf574924212e80a519ee39eb5667553f8d3bcd0c238cd3689f"
+    },
+    {
+      "path": "raw/geocoding_Bogota.json",
+      "source_url": "https://geocoding-api.open-meteo.com/v1/search?name=Bogota&count=10&language=es&format=json&countryCode=CO",
+      "response_url": "https://geocoding-api.open-meteo.com/v1/search?name=Bogota&count=10&language=es&format=json&countryCode=CO",
+      "retrieved_at_utc": "2026-09-23T04:43:57.668473+00:00",
+      "http_status": 200,
+      "sha256": "4cdcf52f752a0a6a66847765dd265c3ad012079d8a284ed6bae87d60206a9b29"
+    },
+    {
+      "path": "raw/solar_Bogota_2025.json",
+      "source_url": "https://archive-api.open-meteo.com/v1/archive?latitude=4.711&longitude=-74.0721&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "response_url": "https://archive-api.open-meteo.com/v1/archive?latitude=4.711&longitude=-74.0721&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "retrieved_at_utc": "2026-09-23T04:43:58.196001+00:00",
+      "http_status": 200,
+      "sha256": "1a055bbd94ef46b440473feac856ea7c0a3581825f2d735d56d2536b71f052f1"
+    },
+    {
+      "path": "raw/geocoding_Bucaramanga.json",
+      "source_url": "https://geocoding-api.open-meteo.com/v1/search?name=Bucaramanga&count=10&language=es&format=json&countryCode=CO",
+      "response_url": "https://geocoding-api.open-meteo.com/v1/search?name=Bucaramanga&count=10&language=es&format=json&countryCode=CO",
+      "retrieved_at_utc": "2026-09-23T04:43:58.197002+00:00",
+      "http_status": 200,
+      "sha256": "1b41f1fb2e57600c6ea01bd4ff586e697ebd30819a99e418d16206f05f00ce52"
+    },
+    {
+      "path": "raw/solar_Bucaramanga_2025.json",
+      "source_url": "https://archive-api.open-meteo.com/v1/archive?latitude=7.1193&longitude=-73.1227&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "response_url": "https://archive-api.open-meteo.com/v1/archive?latitude=7.1193&longitude=-73.1227&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "retrieved_at_utc": "2026-09-23T04:43:58.492429+00:00",
+      "http_status": 200,
+      "sha256": "ba903ee75e8603be57f12c9b0a3bb8ffa03cc513657bc51bf9eeb437962200f9"
+    },
+    {
+      "path": "raw/geocoding_Cali.json",
+      "source_url": "https://geocoding-api.open-meteo.com/v1/search?name=Cali&count=10&language=es&format=json&countryCode=CO",
+      "response_url": "https://geocoding-api.open-meteo.com/v1/search?name=Cali&count=10&language=es&format=json&countryCode=CO",
+      "retrieved_at_utc": "2026-09-23T04:43:58.926870+00:00",
+      "http_status": 200,
+      "sha256": "d20cb5dd157d014b22674a0a3eb1459008e8b772d8350d86bb8c1d3679121415"
+    },
+    {
+      "path": "raw/solar_Cali_2025.json",
+      "source_url": "https://archive-api.open-meteo.com/v1/archive?latitude=3.4516&longitude=-76.532&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "response_url": "https://archive-api.open-meteo.com/v1/archive?latitude=3.4516&longitude=-76.532&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "retrieved_at_utc": "2026-09-23T04:43:59.022891+00:00",
+      "http_status": 200,
+      "sha256": "038d9fddcfc4a14f08c9abcd3e146090ae6828120075a8df701cdc91f39b7408"
+    },
+    {
+      "path": "raw/geocoding_Medellin.json",
+      "source_url": "https://geocoding-api.open-meteo.com/v1/search?name=Medellin&count=10&language=es&format=json&countryCode=CO",
+      "response_url": "https://geocoding-api.open-meteo.com/v1/search?name=Medellin&count=10&language=es&format=json&countryCode=CO",
+      "retrieved_at_utc": "2026-09-23T04:43:59.223667+00:00",
+      "http_status": 200,
+      "sha256": "8e5b2d83c7e7c622bd62ab28f37be35e4850e3c9c677f50da2e36c91b1392526"
+    },
+    {
+      "path": "raw/solar_Medellin_2025.json",
+      "source_url": "https://archive-api.open-meteo.com/v1/archive?latitude=6.2442&longitude=-75.5812&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "response_url": "https://archive-api.open-meteo.com/v1/archive?latitude=6.2442&longitude=-75.5812&start_date=2025-01-01&end_date=2025-12-31&daily=shortwave_radiation_sum%2Cdaylight_duration%2Csunshine_duration&timezone=America%2FBogota&models=era5",
+      "retrieved_at_utc": "2026-09-23T04:43:59.753036+00:00",
+      "http_status": 200,
+      "sha256": "c95cf92885a6b940aa1632f1993d3be50f55489ba7f233bed180a66983857e80"
+    },
+    {
+      "path": "raw/divipola_2025.json",
+      "source_url": "https://portalgis.dane.gov.co/mparcgis/rest/services/Divipola/Serv_DIVIPOLA_MGN_2025/FeatureServer/317/query?where=MPIO_CDPMP+IN+%28%2708001%27%2C%2711001%27%2C%2768001%27%2C%2776001%27%2C%2705001%27%29&outFields=DPTO_CCDGO%2CMPIO_CDPMP%2CMPIO_CNMBRE%2CDPTO_CNMBRE%2CMPIO_NANO&returnGeometry=false&f=pjson",
+      "response_url": "https://portalgis.dane.gov.co/mparcgis/rest/services/Divipola/Serv_DIVIPOLA_MGN_2025/FeatureServer/317/query?where=MPIO_CDPMP+IN+%28%2708001%27%2C%2711001%27%2C%2768001%27%2C%2776001%27%2C%2705001%27%29&outFields=DPTO_CCDGO%2CMPIO_CDPMP%2CMPIO_CNMBRE%2CDPTO_CNMBRE%2CMPIO_NANO&returnGeometry=false&f=pjson",
+      "retrieved_at_utc": "2026-09-23T04:43:59.159542+00:00",
+      "http_status": 200,
+      "sha256": "3f80586d7ff448feb1b63c7855dc83653149ba7a5e8d4a37b8b7b29a11cf0c4b"
+    }
+  ]
+}

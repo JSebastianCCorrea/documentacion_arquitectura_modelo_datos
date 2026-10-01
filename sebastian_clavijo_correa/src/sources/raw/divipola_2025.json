@@ -1,0 +1,87 @@
+{
+ "objectIdFieldName": "OBJECTID",
+ "globalIdFieldName": "",
+ "geometryType": "esriGeometryPolygon",
+ "spatialReference": {
+  "wkid": 102100,
+  "latestWkid": 3857
+ },
+ "fields": [
+  {
+   "name": "DPTO_CCDGO",
+   "alias": "Código DIVIPOLA departamento",
+   "type": "esriFieldTypeString",
+   "length": 2
+  },
+  {
+   "name": "MPIO_CDPMP",
+   "alias": "Código DIVIPOLA concatenado departamento y municipio",
+   "type": "esriFieldTypeString",
+   "length": 5
+  },
+  {
+   "name": "MPIO_CNMBRE",
+   "alias": "Nombre municipio",
+   "type": "esriFieldTypeString",
+   "length": 250
+  },
+  {
+   "name": "DPTO_CNMBRE",
+   "alias": "Nombre departamento",
+   "type": "esriFieldTypeString",
+   "length": 250
+  },
+  {
+   "name": "MPIO_NANO",
+   "alias": "Año versión DANE",
+   "type": "esriFieldTypeSmallInteger"
+  }
+ ],
+ "features": [
+  {
+   "attributes": {
+    "DPTO_CCDGO": "05",
+    "MPIO_CDPMP": "05001",
+    "MPIO_CNMBRE": "MEDELLÍN",
+    "DPTO_CNMBRE": "ANTIOQUIA",
+    "MPIO_NANO": 2025
+   }
+  },
+  {
+   "attributes": {
+    "DPTO_CCDGO": "08",
+    "MPIO_CDPMP": "08001",
+    "MPIO_CNMBRE": "BARRANQUILLA",
+    "DPTO_CNMBRE": "ATLÁNTICO",
+    "MPIO_NANO": 2025
+   }
+  },
+  {
+   "attributes": {
+    "DPTO_CCDGO": "11",
+    "MPIO_CDPMP": "11001",
+    "MPIO_CNMBRE": "BOGOTÁ, D.C.",
+    "DPTO_CNMBRE": "BOGOTÁ, D.C.",
+    "MPIO_NANO": 2025
+   }
+  },
+  {
+   "attributes": {
+    "DPTO_CCDGO": "68",
+    "MPIO_CDPMP": "68001",
+    "MPIO_CNMBRE": "BUCARAMANGA",
+    "DPTO_CNMBRE": "SANTANDER",
+    "MPIO_NANO": 2024
+   }
+  },
+  {
+   "attributes": {
+    "DPTO_CCDGO": "76",
+    "MPIO_CDPMP": "76001",
+    "MPIO_CNMBRE": "SANTIAGO DE CALI",
+    "DPTO_CNMBRE": "VALLE DEL CAUCA",
+    "MPIO_NANO": 2025
+   }
+  }
+ ]
+}

@@ -1,0 +1,216 @@
+{
+  "dataset": "Salida completa y limpia de EA2 para el enriquecimiento",
+  "source": {
+    "repository": "https://github.com/JSebastianCCorrea/Preprocesamiento_Limpieza_de_Datos_en_Plataforma_de_Big_Data_en_la_Nube",
+    "commit": "a4b8a1a5021b58104ca92b840533eb5bbf4170ed",
+    "repository_path": "sebastian_clavijo_correa/src/xlsx/cleaned_full.csv",
+    "sha256": "e61e5770af3c2b895eedf0f1e5c1f2a2c2acb7825b68dc25969d39824b3894d6"
+  },
+  "csv": {
+    "path": "src/data/base/cleaned_full.csv",
+    "bytes": 10119852,
+    "sha256": "e61e5770af3c2b895eedf0f1e5c1f2a2c2acb7825b68dc25969d39824b3894d6",
+    "rows": 43800,
+    "columns": [
+      "city_id",
+      "time_id",
+      "observation_time",
+      "city",
+      "latitude",
+      "longitude",
+      "temperature_c",
+      "humidity_pct",
+      "precipitation_mm",
+      "wind_speed_kmh",
+      "energy_kwh",
+      "synthetic_energy",
+      "source_row",
+      "year",
+      "month",
+      "day",
+      "hour",
+      "imputed_fields",
+      "quality_status",
+      "is_outlier",
+      "outlier_fields",
+      "outlier_temperature_c",
+      "outlier_humidity_pct",
+      "outlier_precipitation_mm",
+      "outlier_wind_speed_kmh",
+      "outlier_energy_kwh",
+      "temperature_zscore",
+      "energy_zscore",
+      "humidity_fraction",
+      "precipitation_log1p",
+      "timezone",
+      "observation_time_utc"
+    ]
+  },
+  "database": {
+    "path": "src/db/cleaned.duckdb",
+    "engine": "DuckDB",
+    "table": "cleaned_data",
+    "bytes": 3420160,
+    "sha256": "8e129a32d3c25831e8f977e13b4e863da7c140cf7816eaed7ff47359ff278fa7",
+    "schema": [
+      {
+        "column": "city_id",
+        "type": "BIGINT"
+      },
+      {
+        "column": "time_id",
+        "type": "BIGINT"
+      },
+      {
+        "column": "observation_time",
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      {
+        "column": "city",
+        "type": "VARCHAR"
+      },
+      {
+        "column": "latitude",
+        "type": "DOUBLE"
+      },
+      {
+        "column": "longitude",
+        "type": "DOUBLE"
+      },
+      {
+        "column": "temperature_c",
+        "type": "DOUBLE"
+      },
+      {
+        "column": "humidity_pct",
+        "type": "DOUBLE"
+      },
+      {
+        "column": "precipitation_mm",
+        "type": "DOUBLE"
+      },
+      {
+        "column": "wind_speed_kmh",
+        "type": "DOUBLE"
+      },
+      {
+        "column": "energy_kwh",
+        "type": "DOUBLE"
+      },
+      {
+        "column": "synthetic_energy",
+        "type": "BOOLEAN"
+      },
+      {
+        "column": "source_row",
+        "type": "BIGINT"
+      },
+      {
+        "column": "year",
+        "type": "BIGINT"
+      },
+      {
+        "column": "month",
+        "type": "BIGINT"
+      },
+      {
+        "column": "day",
+        "type": "BIGINT"
+      },
+      {
+        "column": "hour",
+        "type": "BIGINT"
+      },
+      {
+        "column": "imputed_fields",
+        "type": "VARCHAR"
+      },
+      {
+        "column": "quality_status",
+        "type": "VARCHAR"
+      },
+      {
+        "column": "is_outlier",
+        "type": "BOOLEAN"
+      },
+      {
+        "column": "outlier_fields",
+        "type": "VARCHAR"
+      },
+      {
+        "column": "outlier_temperature_c",
+        "type": "BOOLEAN"
+      },
+      {
+        "column": "outlier_humidity_pct",
+        "type": "BOOLEAN"
+      },
+      {
+        "column": "outlier_precipitation_mm",
+        "type": "BOOLEAN"
+      },
+      {
+        "column": "outlier_wind_speed_kmh",
+        "type": "BOOLEAN"
+      },
+      {
+        "column": "outlier_energy_kwh",
+        "type": "BOOLEAN"
+      },
+      {
+        "column": "temperature_zscore",
+        "type": "DOUBLE"
+      },
+      {
+        "column": "energy_zscore",
+        "type": "DOUBLE"
+      },
+      {
+        "column": "humidity_fraction",
+        "type": "DOUBLE"
+      },
+      {
+        "column": "precipitation_log1p",
+        "type": "DOUBLE"
+      },
+      {
+        "column": "timezone",
+        "type": "VARCHAR"
+      },
+      {
+        "column": "observation_time_utc",
+        "type": "TIMESTAMP WITH TIME ZONE"
+      }
+    ]
+  },
+  "semantics": {
+    "grain": "Una ciudad y una hora local de 2025",
+    "key": [
+      "city",
+      "observation_time"
+    ],
+    "timezone": "America/Bogota",
+    "timestamp_storage": "TIMESTAMPTZ conserva el instante; timezone conserva la zona local",
+    "city_id": "Clave dimensional local de EA1, no código DANE o DIVIPOLA",
+    "weather": "Open-Meteo Historical Weather API; la extracción EA1 no fijó models",
+    "energy_kwh": "Variable sintética de EA1 con semilla 42; no consumo eléctrico medido",
+    "empty_text_fields": [
+      "imputed_fields",
+      "outlier_fields"
+    ]
+  },
+  "validation": {
+    "csv_sha256_matches_ea2": true,
+    "csv_unchanged": true,
+    "rows": 43800,
+    "columns": 32,
+    "duplicate_city_hour": 0,
+    "csv_database_values_equal": true,
+    "comparison": "Todos los valores: números y booleanos exactos; fechas por instante UTC; textos incluyendo vacíos"
+  },
+  "build": {
+    "duckdb": "1.5.5",
+    "pandas": "2.3.3",
+    "numpy": "1.26.2"
+  }
+}

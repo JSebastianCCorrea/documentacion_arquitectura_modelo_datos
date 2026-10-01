@@ -1,0 +1,82 @@
+Auditoría de preprocesamiento y limpieza — EA2
+Autor: Juan Sebastian Clavijo Correa
+Ejecución UTC: 2026-10-01T01:49:14.249023+00:00
+Estado: PASS
+Origen: src/db/replayed.duckdb
+SHA-256 origen: e1f6ec4581af6a2a055b0a935f133e6645e21389149a8a10c4ee868f873aa20e
+Entorno: base local DuckDB de EA1 y procesamiento con Pandas.
+Pandas trabaja en un solo proceso sobre la base que simula el almacenamiento cloud.
+Los datos meteorológicos provienen de Open-Meteo. EA1 no fijó el parámetro models.
+Las coordenadas corresponden a las ciudades solicitadas. La energía es sintética (semilla 42).
+
+Comparación antes y después
+Registros antes: 43800
+Registros después: 43800
+Duplicados exactos antes: 0
+Duplicados exactos eliminados: 0
+Filas con claves conflictivas rechazadas: 0
+Total de filas rechazadas: 0
+Nulos iniciales en columnas de origen: 0
+Nulos finales en columnas de origen: 0
+Ecuación: 43800 = 43800 limpias + 0 duplicadas + 0 rechazadas
+
+Operaciones y criterios de limpieza
+1. Se comprobaron las claves de las dimensiones y los hechos sin correspondencia antes del JOIN.
+2. Normalización de nombres de ciudad: 0 cambios.
+3. Fechas interpretadas en America/Bogota; fechas inválidas: 0.
+4. Se revisaron los tipos de números, identificadores y la marca de energía sintética.
+   Fallos numéricos: {"city_id": 0, "time_id": 0, "latitude": 0, "longitude": 0, "temperature_c": 0, "humidity_pct": 0, "precipitation_mm": 0, "wind_speed_kmh": 0, "energy_kwh": 0}
+   Valores fuera de dominio convertidos en ausentes: {"latitude": 0, "longitude": 0, "temperature_c": 0, "humidity_pct": 0, "precipitation_mm": 0, "wind_speed_kmh": 0, "energy_kwh": 0}
+5. Los faltantes de temperatura, humedad, viento y energía se completan con la mediana de su ciudad, año y mes.
+   Celdas imputadas: {"temperature_c": 0, "humidity_pct": 0, "wind_speed_kmh": 0, "energy_kwh": 0}
+   Una fila sin precipitación válida se rechaza: no permite saber si llovió.
+   Si el grupo no tiene valores para calcular la mediana, la fila se rechaza. También se rechazan las versiones que discrepan para una misma ciudad y hora.
+6. Año, mes, día, hora, fracción de humedad, log1p de precipitación y z-scores por ciudad.
+   Estas variables se añaden a las columnas de origen. El z-score usa la desviación poblacional.
+   Si estos datos se usan en un modelo predictivo, las medianas y escalas se deben calcular solo con el conjunto de entrenamiento.
+
+Valores atípicos
+Tukey 1.5 IQR por ciudad; IQR cero no se clasifica
+Señalar y conservar valores físicamente válidos
+Filas con al menos una alerta: 6240
+Alertas por variable: {"temperature_c": 21, "humidity_pct": 14, "precipitation_mm": 4970, "wind_speed_kmh": 1024, "energy_kwh": 424}
+Cuando IQR es cero se omite esta clasificación; en series con muchos ceros señalaría cualquier lluvia.
+
+Tipos y estadísticas por campo
+city_id: int64 -> Int64; nulos 0 -> 0
+time_id: int64 -> Int64; nulos 0 -> 0
+observation_time: datetime64[us] -> datetime64[us, America/Bogota]; nulos 0 -> 0
+city: object -> string; nulos 0 -> 0
+latitude: float64 -> float64; nulos 0 -> 0
+longitude: float64 -> float64; nulos 0 -> 0
+temperature_c: float64 -> float64; nulos 0 -> 0
+humidity_pct: int64 -> float64; nulos 0 -> 0
+precipitation_mm: float64 -> float64; nulos 0 -> 0
+wind_speed_kmh: float64 -> float64; nulos 0 -> 0
+energy_kwh: float64 -> float64; nulos 0 -> 0
+synthetic_energy: bool -> boolean; nulos 0 -> 0
+temperature_c: ANTES {"count": 43800.0, "mean": 21.325358447488583, "std": 5.3396122767072285, "min": 3.9, "25%": 18.3, "50%": 21.1, "75%": 25.5, "max": 36.5}; DESPUÉS {"count": 43800.0, "mean": 21.325358447488583, "std": 5.3396122767072285, "min": 3.9, "25%": 18.3, "50%": 21.1, "75%": 25.5, "max": 36.5}
+humidity_pct: ANTES {"count": 43800.0, "mean": 81.79102739726028, "std": 15.065341123149375, "min": 24.0, "25%": 71.0, "50%": 86.0, "75%": 95.0, "max": 100.0}; DESPUÉS {"count": 43800.0, "mean": 81.79102739726028, "std": 15.065341123149375, "min": 24.0, "25%": 71.0, "50%": 86.0, "75%": 95.0, "max": 100.0}
+precipitation_mm: ANTES {"count": 43800.0, "mean": 0.27011187214611876, "std": 0.9419411937291048, "min": 0.0, "25%": 0.0, "50%": 0.0, "75%": 0.1, "max": 24.8}; DESPUÉS {"count": 43800.0, "mean": 0.27011187214611876, "std": 0.9419411937291048, "min": 0.0, "25%": 0.0, "50%": 0.0, "75%": 0.1, "max": 24.8}
+wind_speed_kmh: ANTES {"count": 43800.0, "mean": 5.187077625570776, "std": 4.0615841500899785, "min": 0.0, "25%": 2.3, "50%": 4.1, "75%": 6.8, "max": 28.6}; DESPUÉS {"count": 43800.0, "mean": 5.187077625570776, "std": 4.0615841500899785, "min": 0.0, "25%": 2.3, "50%": 4.1, "75%": 6.8, "max": 28.6}
+energy_kwh: ANTES {"count": 43800.0, "mean": 131.46030936073058, "std": 21.31192865124758, "min": 82.98, "25%": 115.79, "50%": 128.73, "75%": 144.4325, "max": 223.01}; DESPUÉS {"count": 43800.0, "mean": 131.46030936073058, "std": 21.31192865124758, "min": 82.98, "25%": 115.79, "50%": 128.73, "75%": 144.4325, "max": 223.01}
+
+Muestra y archivos de la auditoría
+Muestra: 1200 filas; 20 por ciudad/año/mes como máximo, semilla 42.
+La muestra cubre cada ciudad y mes con la misma cuota máxima. Los meses con más registros tienen menor proporción de selección.
+Para calcular resultados del conjunto completo, use todas las filas o los pesos N/n de sample_coverage.csv.
+Conjunto completo: src/xlsx/cleaned_full.csv
+Muestra: src/xlsx/cleaned_data.csv y cleaned_data.xlsx
+Rechazos: rejected_records.csv; estadísticas/umbrales: cleaning_metrics.json.
+Perfil tabular: quality_profile.csv; cobertura de muestra: sample_coverage.csv.
+Base conservada sin cambios: True
+Los casos con errores se construyen en tests/test_cleaning.py sobre datos separados de EA1.
+Un conteo de cero indica que esa operación no encontró filas que corregir en esta ejecución.
+
+SHA-256 de los archivos generados
+xlsx/cleaned_full.csv: e61e5770af3c2b895eedf0f1e5c1f2a2c2acb7825b68dc25969d39824b3894d6
+xlsx/cleaned_data.csv: fad213d88c13c29dafe300a1ccebcaeaaa44d0a13e7494ffc802c5a926c123f6
+xlsx/cleaned_data.xlsx: 7e3c0efee935fb392ada740074f5e3e41dc66c08bda381ce04c61e60273c7f16
+static/auditoria/rejected_records.csv: 2177ece28bd983634b262a9ec86d84d953474d385f814df969c041330afc8eee
+static/auditoria/sample_coverage.csv: ff6da20a5e34afc68a074756b82a4e7d3dffb1d1c9d38199c8a5a0cb0f6489e8
+static/auditoria/quality_profile.csv: c47f0d5af1e4b7db426294e172e05ca5040db53e3c1b2d1be5b14108fa7229b4
