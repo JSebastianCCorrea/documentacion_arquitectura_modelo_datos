@@ -5,6 +5,7 @@ import sqlite3
 import sys
 import tempfile
 import unittest
+from contextlib import closing
 
 import pandas as pd
 
@@ -62,6 +63,12 @@ class ModelTests(unittest.TestCase):
             self.assertEqual(result["view_rows"], 43800)
             self.assertEqual(result["view_columns"], 63)
             self.assertEqual(result["foreign_key_violations"], 0)
+            raw = pd.read_csv(ROOT / "src/data/reference/enriched_full.csv", dtype=str, keep_default_na=False)
+            with closing(sqlite3.connect(root / "db.sqlite")) as con:
+                recovered = pd.read_sql_query("SELECT * FROM enriched_data ORDER BY source_row", con)
+            for field in raw:
+                if model.sql_type(field) == "REAL":
+                    self.assertEqual(raw[field].map(float).tolist(), recovered[field].tolist(), field)
 
 
 if __name__ == "__main__":

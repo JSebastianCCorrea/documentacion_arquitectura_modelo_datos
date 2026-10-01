@@ -57,6 +57,6 @@ test_inconsistent_daily_value_is_rejected (test_model.ModelTests.test_inconsiste
 test_municipality_codes_remain_text (test_model.ModelTests.test_municipality_codes_remain_text) ... ok
 
 ----------------------------------------------------------------------
-Ran 44 tests in 15.816s
+Ran 44 tests in 17.075s
 
 OK

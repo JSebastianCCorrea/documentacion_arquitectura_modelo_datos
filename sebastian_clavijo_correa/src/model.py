@@ -46,7 +46,10 @@ def read_enriched(path):
                 raise ValueError(f"Booleano inválido: {field}")
             frame[field] = frame[field].map({"True": 1, "False": 0}).astype("int64")
         elif sql_type(field) != "TEXT":
-            frame[field] = pd.to_numeric(frame[field], errors="raise")
+            # float() conserva el redondeo binario del decimal escrito por EA3.
+            # El conversor genérico de Pandas puede variar un último bit.
+            frame[field] = (frame[field].map(float) if sql_type(field) == "REAL"
+                            else pd.to_numeric(frame[field], errors="raise"))
             if not np.isfinite(frame[field]).all():
                 raise ValueError(f"Número no finito en {field}")
             if sql_type(field) == "INTEGER":

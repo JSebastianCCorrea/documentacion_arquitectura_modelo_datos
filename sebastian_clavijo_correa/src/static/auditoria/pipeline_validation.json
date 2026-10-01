@@ -1,6 +1,6 @@
 {
   "status": "PASS",
-  "execution_utc": "2026-10-01T01:49:22.795022+00:00",
+  "execution_utc": "2026-10-01T02:06:14.153191+00:00",
   "ingestion_equals_ea1": true,
   "cleaning_equals_ea2_bytes": true,
   "enrichment_equals_previous_bytes": true,
@@ -10,5 +10,5 @@
   "rows": 43800,
   "columns": 63,
   "sqlite_roundtrip_exact": true,
-  "sqlite_sha256": "3f5c251ad58990f15b1ee424d337a514e574ffbea66a96f3c65d84586e6100ea"
+  "sqlite_sha256": "5c8164d8c153ee7a2904f169e23d9bb02f083b4a1dcc35703773dd3663c70c44"
 }
