@@ -1,4 +1,5 @@
-"""Reconstruye la base DuckDB del enriquecimiento desde el CSV íntegro de EA2."""
+"""Crea la base DuckDB del enriquecimiento a partir del CSV completo de EA2."""
+
 from __future__ import annotations
 
 import argparse
@@ -21,24 +22,61 @@ SOURCE_REPOSITORY_PATH = "sebastian_clavijo_correa/src/xlsx/cleaned_full.csv"
 
 INTEGER_COLUMNS = ["city_id", "time_id", "source_row", "year", "month", "day", "hour"]
 FLOAT_COLUMNS = [
-    "latitude", "longitude", "temperature_c", "humidity_pct", "precipitation_mm",
-    "wind_speed_kmh", "energy_kwh", "temperature_zscore", "energy_zscore",
-    "humidity_fraction", "precipitation_log1p",
+    "latitude",
+    "longitude",
+    "temperature_c",
+    "humidity_pct",
+    "precipitation_mm",
+    "wind_speed_kmh",
+    "energy_kwh",
+    "temperature_zscore",
+    "energy_zscore",
+    "humidity_fraction",
+    "precipitation_log1p",
 ]
 BOOLEAN_COLUMNS = [
-    "synthetic_energy", "is_outlier", "outlier_temperature_c", "outlier_humidity_pct",
-    "outlier_precipitation_mm", "outlier_wind_speed_kmh", "outlier_energy_kwh",
+    "synthetic_energy",
+    "is_outlier",
+    "outlier_temperature_c",
+    "outlier_humidity_pct",
+    "outlier_precipitation_mm",
+    "outlier_wind_speed_kmh",
+    "outlier_energy_kwh",
 ]
 TIME_COLUMNS = ["observation_time", "observation_time_utc"]
 TEXT_COLUMNS = ["city", "imputed_fields", "quality_status", "outlier_fields", "timezone"]
 COLUMN_ORDER = [
-    "city_id", "time_id", "observation_time", "city", "latitude", "longitude",
-    "temperature_c", "humidity_pct", "precipitation_mm", "wind_speed_kmh",
-    "energy_kwh", "synthetic_energy", "source_row", "year", "month", "day", "hour",
-    "imputed_fields", "quality_status", "is_outlier", "outlier_fields",
-    "outlier_temperature_c", "outlier_humidity_pct", "outlier_precipitation_mm",
-    "outlier_wind_speed_kmh", "outlier_energy_kwh", "temperature_zscore",
-    "energy_zscore", "humidity_fraction", "precipitation_log1p", "timezone",
+    "city_id",
+    "time_id",
+    "observation_time",
+    "city",
+    "latitude",
+    "longitude",
+    "temperature_c",
+    "humidity_pct",
+    "precipitation_mm",
+    "wind_speed_kmh",
+    "energy_kwh",
+    "synthetic_energy",
+    "source_row",
+    "year",
+    "month",
+    "day",
+    "hour",
+    "imputed_fields",
+    "quality_status",
+    "is_outlier",
+    "outlier_fields",
+    "outlier_temperature_c",
+    "outlier_humidity_pct",
+    "outlier_precipitation_mm",
+    "outlier_wind_speed_kmh",
+    "outlier_energy_kwh",
+    "temperature_zscore",
+    "energy_zscore",
+    "humidity_fraction",
+    "precipitation_log1p",
+    "timezone",
     "observation_time_utc",
 ]
 
@@ -48,7 +86,7 @@ def sha256(path: Path) -> str:
 
 
 def read_base(path: Path) -> pd.DataFrame:
-    # Un texto vacío en las marcas de calidad significa que no hay marcas.
+    # Un texto vacío indica que la fila no tiene marcas de calidad.
     frame = pd.read_csv(path, keep_default_na=False, dtype="string", encoding="utf-8")
     if frame.columns.tolist() != COLUMN_ORDER:
         raise ValueError("El CSV no tiene las 32 columnas esperadas de EA2, en su orden original")
@@ -58,7 +96,7 @@ def read_base(path: Path) -> pd.DataFrame:
             raise ValueError(f"Valores no enteros en {column}")
         frame[column] = values.astype("int64")
     for column in FLOAT_COLUMNS:
-        # float() conserva la interpretación binaria del decimal escrito en el CSV.
+        # Uso float() para conservar el valor decimal que quedó guardado en el CSV.
         frame[column] = frame[column].map(float).astype("float64")
         if not np.isfinite(frame[column]).all():
             raise ValueError(f"Valores no finitos en {column}")
@@ -99,7 +137,9 @@ def confirm_equal(expected: pd.DataFrame, observed: pd.DataFrame) -> None:
         raise ValueError("La base reconstruida cambió las filas o columnas del CSV")
     for column in COLUMN_ORDER:
         if column in TIME_COLUMNS:
-            matches = (pd.to_datetime(left[column], utc=True) == pd.to_datetime(right[column], utc=True)).all()
+            matches = (
+                pd.to_datetime(left[column], utc=True) == pd.to_datetime(right[column], utc=True)
+            ).all()
         elif column in TEXT_COLUMNS:
             matches = (left[column].astype(str) == right[column].astype(str)).all()
         else:
@@ -109,7 +149,9 @@ def confirm_equal(expected: pd.DataFrame, observed: pd.DataFrame) -> None:
 
 
 def prepare_base(expected_sha256: str | None = None, ea2_commit: str | None = None) -> dict:
-    previous = json.loads(MANIFEST_PATH.read_text(encoding="utf-8")) if MANIFEST_PATH.exists() else {}
+    previous = (
+        json.loads(MANIFEST_PATH.read_text(encoding="utf-8")) if MANIFEST_PATH.exists() else {}
+    )
     expected_sha256 = expected_sha256 or previous.get("source", {}).get("sha256")
     ea2_commit = ea2_commit or previous.get("source", {}).get("commit")
     if not expected_sha256 or not ea2_commit:
@@ -132,7 +174,9 @@ def prepare_base(expected_sha256: str | None = None, ea2_commit: str | None = No
                 for column in COLUMN_ORDER
             )
             connection.execute(f"CREATE TABLE cleaned_data AS SELECT {expressions} FROM base_input")
-            connection.execute("CREATE UNIQUE INDEX city_hour ON cleaned_data(city, observation_time)")
+            connection.execute(
+                "CREATE UNIQUE INDEX city_hour ON cleaned_data(city, observation_time)"
+            )
             schema = [
                 {"column": row[0], "type": row[1]}
                 for row in connection.execute("DESCRIBE cleaned_data").fetchall()
@@ -187,17 +231,33 @@ def prepare_base(expected_sha256: str | None = None, ea2_commit: str | None = No
         },
         "build": {"duckdb": duckdb.__version__, "pandas": pd.__version__, "numpy": np.__version__},
     }
-    MANIFEST_PATH.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    MANIFEST_PATH.write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
     return manifest
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--expected-sha256", help="Huella del CSV original; se reutiliza el manifiesto si existe")
-    parser.add_argument("--ea2-commit", help="Commit que contiene el CSV de origen; se reutiliza el manifiesto si existe")
+    parser.add_argument(
+        "--expected-sha256", help="Huella del CSV original; se reutiliza el manifiesto si existe"
+    )
+    parser.add_argument(
+        "--ea2-commit",
+        help="Commit que contiene el CSV de origen; se reutiliza el manifiesto si existe",
+    )
     args = parser.parse_args()
     manifest = prepare_base(args.expected_sha256, args.ea2_commit)
-    print(json.dumps({"status": "PASS", **manifest["validation"], "database_sha256": manifest["database"]["sha256"]}, indent=2))
+    print(
+        json.dumps(
+            {
+                "status": "PASS",
+                **manifest["validation"],
+                "database_sha256": manifest["database"]["sha256"],
+            },
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":

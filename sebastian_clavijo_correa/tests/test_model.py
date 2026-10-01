@@ -1,4 +1,4 @@
-"""Verifica riesgos de granularidad y restricciones de la base de análisis."""
+"""Comprueba las claves del modelo y la separación de los datos diarios y horarios."""
 
 from pathlib import Path
 import sqlite3
@@ -25,7 +25,9 @@ class ModelTests(unittest.TestCase):
         solar = self.tables["fact_solar_day"]
         self.assertEqual(len(solar), 1825)
         hourly_sum = self.frame["shortwave_radiation_sum_mj_m2"].sum()
-        self.assertAlmostEqual(hourly_sum, 24 * solar["shortwave_radiation_sum_mj_m2"].sum(), places=6)
+        self.assertAlmostEqual(
+            hourly_sum, 24 * solar["shortwave_radiation_sum_mj_m2"].sum(), places=6
+        )
 
     def test_inconsistent_daily_value_is_rejected(self):
         changed = self.frame.copy()
@@ -57,18 +59,28 @@ class ModelTests(unittest.TestCase):
     def test_complete_sqlite_roundtrip(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
-            result = model.run(ROOT / "src/data/reference/enriched_full.csv", root / "db.sqlite",
-                               root / "schema.sql", root / "audit.json")
+            result = model.run(
+                ROOT / "src/data/reference/enriched_full.csv",
+                root / "db.sqlite",
+                root / "schema.sql",
+                root / "audit.json",
+            )
             self.assertTrue(result["roundtrip_exact"])
             self.assertEqual(result["view_rows"], 43800)
             self.assertEqual(result["view_columns"], 63)
             self.assertEqual(result["foreign_key_violations"], 0)
-            raw = pd.read_csv(ROOT / "src/data/reference/enriched_full.csv", dtype=str, keep_default_na=False)
+            raw = pd.read_csv(
+                ROOT / "src/data/reference/enriched_full.csv", dtype=str, keep_default_na=False
+            )
             with closing(sqlite3.connect(root / "db.sqlite")) as con:
-                recovered = pd.read_sql_query("SELECT * FROM enriched_data ORDER BY source_row", con)
+                recovered = pd.read_sql_query(
+                    "SELECT * FROM enriched_data ORDER BY source_row", con
+                )
             for field in raw:
                 if model.sql_type(field) == "REAL":
-                    self.assertEqual(raw[field].map(float).tolist(), recovered[field].tolist(), field)
+                    self.assertEqual(
+                        raw[field].map(float).tolist(), recovered[field].tolist(), field
+                    )
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 
 ## 1. Unidad de observación y tipos
 
-El conjunto enriquecido contiene **43.800 filas y 63 columnas**. Cada fila representa una ciudad y una hora local de 2025. La clave natural es `(city, observation_time)`; `source_row` permite seguir la fila hasta la salida de EA2.
+El conjunto enriquecido tiene **43.800 filas y 63 columnas**. Cada fila corresponde a una ciudad y una hora local de 2025. La combinación `(city, observation_time)` identifica la observación; `source_row` permite encontrarla también en la salida de EA2.
 
 Los tipos de las tablas siguientes son lógicos. El CSV no almacena un esquema: al importarlo deben conservarse los códigos como texto y las fechas con su zona. En DuckDB, las fechas de entrada son `TIMESTAMPTZ`. El pipeline convierte la observación a `America/Bogota` antes de obtener la fecha local.
 
@@ -12,9 +12,9 @@ Estas columnas proceden de EA2. El enriquecimiento verifica que todos sus valore
 
 | Columna | Tipo / unidad | Significado |
 |---|---|---|
-| `city_id` | Entero | Identificador dimensional local de EA1; no es un código DANE |
+| `city_id` | Entero | Identificador de ciudad en EA1; distinto del código DANE |
 | `time_id` | Entero | Identificador de la hora en la dimensión temporal de EA1 |
-| `observation_time` | Fecha y hora con zona | Instante de la observación, presentado en `America/Bogota` |
+| `observation_time` | Fecha y hora con zona | Fecha y hora de la observación en `America/Bogota` |
 | `city` | Texto | Barranquilla, Bogota, Bucaramanga, Cali o Medellin, con la escritura de EA2 |
 | `latitude` | Decimal / grados | Latitud solicitada en la extracción original |
 | `longitude` | Decimal / grados | Longitud solicitada en la extracción original |
@@ -56,7 +56,7 @@ Los identificadores de procedencia de esta tabla corresponden a `sources[].id` e
 | `local_date` | Fecha | Fecha de la observación en Colombia; derivada de `observation_time` |
 | `country_code` | Texto | Código de país, `CO`; `city_geography` |
 | `geoname_id` | Entero lógico | Identificador del punto en GeoNames; `city_geography` |
-| `elevation_m` | Decimal / m | Elevación del punto geográfico retornado; `city_geography` |
+| `elevation_m` | Decimal / m | Elevación del punto que devuelve la consulta; `city_geography` |
 | `matched_geography` | Booleano | La ciudad encontró correspondencia en el catálogo geográfico |
 | `holiday_name` | Texto | Nombre de festividad o `No festivo`; nombres coincidentes agrupados; `calendar` |
 | `is_holiday` | Booleano | La fecha figura como festiva en el calendario; `calendar` |
@@ -65,7 +65,7 @@ Los identificadores de procedencia de esta tabla corresponden a `sources[].id` e
 | `shortwave_radiation_sum_mj_m2` | Decimal / MJ/m²/día | Radiación de onda corta acumulada diaria; `solar_daily` |
 | `daylight_seconds` | Decimal / s | Duración diaria de luz; `solar_daily` |
 | `sunshine_seconds` | Decimal / s | Duración diaria de sol informada por la fuente; `solar_daily` |
-| `matched_solar` | Booleano | La combinación ciudad–fecha encontró correspondencia solar |
+| `matched_solar` | Booleano | La combinación ciudad-fecha encontró correspondencia solar |
 | `municipality_code` | Texto de 5 dígitos | Código DIVIPOLA municipal; `municipalities` |
 | `municipality_name` | Texto | Nombre municipal informado por DANE; `municipalities` |
 | `department_code` | Texto de 2 dígitos | Código departamental; `municipalities` |
@@ -85,7 +85,7 @@ Los identificadores de procedencia de esta tabla corresponden a `sources[].id` e
 | `is_business_day` | Booleano | Fecha que no es festiva ni fin de semana según `calendar` |
 | `enrichment_status` | Texto | `COMPLETE` cuando los seis cruces tienen correspondencia y sus campos están presentes; `INCOMPLETE` en otro caso |
 
-Las diferencias térmicas se calculan sobre cada temperatura horaria. No son grados-día acumulados ni indicadores calibrados de consumo o confort. Las magnitudes solares diarias se repiten en las 24 horas de cada ciudad y fecha: deben deduplicarse a esa granularidad antes de sumar valores diarios.
+Las diferencias térmicas se calculan sobre cada temperatura horaria. No son grados-día acumulados ni indicadores calibrados de consumo o confort. Las magnitudes solares diarias se repiten en las 24 horas de cada ciudad y fecha: antes de sumarlas, se debe conservar una sola fila por ciudad y día.
 
 ### Correspondencia territorial
 

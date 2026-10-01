@@ -1,4 +1,4 @@
-"""Repite la ingesta de EA1 desde las respuestas JSON conservadas."""
+"""Vuelve a generar los datos de EA1 usando los JSON guardados."""
 
 from pathlib import Path
 import argparse
@@ -37,14 +37,16 @@ def run(raw_directory: Path, database: Path) -> dict:
     before = len(weather)
     weather["time"] = pd.to_datetime(weather["time"], errors="raise")
     weather = weather.drop_duplicates().dropna(subset=["time", "city", "temperature_2m"])
-    # El orden de ciudades y de horas conserva la secuencia aleatoria de EA1.
+    # Mantengo el orden de EA1 para obtener los mismos valores de energía simulada.
     rng = np.random.default_rng(42)
     hours = weather["time"].dt.hour
     base = weather["city"].map({city: value for city, _, _, value in CITIES})
     factor = np.select([hours.between(18, 21), hours.between(7, 9)], [1.25, 1.15], default=1.0)
     temperature = 1 + (weather["temperature_2m"] - 22).abs() * 0.015
     rain = 1 + weather["precipitation"].fillna(0) * 0.005
-    weather["energy_kwh"] = (base * factor * temperature * rain * rng.normal(1, .05, len(weather))).round(2)
+    weather["energy_kwh"] = (
+        base * factor * temperature * rain * rng.normal(1, 0.05, len(weather))
+    ).round(2)
     weather["synthetic_energy"] = True
     if len(weather) != 43800 or weather.duplicated(["city", "time"]).any():
         raise ValueError("La instantánea no contiene las 43.800 horas ciudad esperadas")
@@ -71,11 +73,19 @@ def run(raw_directory: Path, database: Path) -> dict:
             s.wind_speed_10m wind_speed_kmh, s.energy_kwh, s.synthetic_energy
             FROM staging_weather s JOIN dim_city c ON s.city=c.city
             JOIN dim_time t ON s.observation_time=t.observation_time""")
-        counts = {table: con.sql(f"SELECT count(*) FROM {table}").fetchone()[0]
-                  for table in ["staging_weather", "dim_city", "dim_time", "fact_weather_energy"]}
-    return {"mode": "replay_archived_api_responses", "raw_rows": before,
-            "retained_rows": len(weather), "tables": counts, "raw_sha256": manifest,
-            "live_api_called": False, "synthetic_energy_seed": 42}
+        counts = {
+            table: con.sql(f"SELECT count(*) FROM {table}").fetchone()[0]
+            for table in ["staging_weather", "dim_city", "dim_time", "fact_weather_energy"]
+        }
+    return {
+        "mode": "replay_archived_api_responses",
+        "raw_rows": before,
+        "retained_rows": len(weather),
+        "tables": counts,
+        "raw_sha256": manifest,
+        "live_api_called": False,
+        "synthetic_energy_seed": 42,
+    }
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
-"""Prepara las seis fuentes a partir de respuestas públicas guardadas en el repositorio.
+"""Prepara los seis archivos fuente usando las respuestas guardadas en el repositorio.
 
-La ejecución normal no usa Internet. --fetch descarga nuevas respuestas antes de
-preparar los archivos y cambia las huellas del manifiesto.
+Por defecto trabaja sin Internet. Con --fetch vuelve a consultar las API y actualiza
+los archivos y sus huellas en el manifiesto.
 """
 
 from __future__ import annotations
@@ -21,7 +21,6 @@ import zipfile
 
 import pandas as pd
 from openpyxl.styles import Alignment, Font, PatternFill
-
 
 PROJECT = Path(__file__).resolve().parents[1]
 SOURCE_DIR = PROJECT / "src" / "sources"
@@ -56,20 +55,29 @@ def requests_to_make() -> dict[str, str]:
     for city, (latitude, longitude, _) in CITIES.items():
         queries[f"geocoding_{city}.json"] = query_url(
             "https://geocoding-api.open-meteo.com/v1/search",
-            name=city, count=10, language="es", format="json", countryCode="CO",
+            name=city,
+            count=10,
+            language="es",
+            format="json",
+            countryCode="CO",
         )
         queries[f"solar_{city}_2025.json"] = query_url(
             "https://archive-api.open-meteo.com/v1/archive",
-            latitude=latitude, longitude=longitude,
-            start_date="2025-01-01", end_date="2025-12-31",
+            latitude=latitude,
+            longitude=longitude,
+            start_date="2025-01-01",
+            end_date="2025-12-31",
             daily="shortwave_radiation_sum,daylight_duration,sunshine_duration",
-            timezone="America/Bogota", models="era5",
+            timezone="America/Bogota",
+            models="era5",
         )
     codes = ",".join(f"'{value[2]}'" for value in CITIES.values())
     queries["divipola_2025.json"] = query_url(
-        DANE_URL, where=f"MPIO_CDPMP IN ({codes})",
+        DANE_URL,
+        where=f"MPIO_CDPMP IN ({codes})",
         outFields="DPTO_CCDGO,MPIO_CDPMP,MPIO_CNMBRE,DPTO_CNMBRE,MPIO_NANO",
-        returnGeometry="false", f="pjson",
+        returnGeometry="false",
+        f="pjson",
     )
     return queries
 
@@ -90,9 +98,12 @@ def fetch_snapshots(raw_dir: Path) -> None:
         destination = raw_dir / filename
         destination.write_bytes(data)
         return {
-            "path": f"raw/{filename}", "source_url": url, "response_url": final_url,
+            "path": f"raw/{filename}",
+            "source_url": url,
+            "response_url": final_url,
             "retrieved_at_utc": datetime.now(timezone.utc).isoformat(),
-            "http_status": status, "sha256": sha256(destination),
+            "http_status": status,
+            "sha256": sha256(destination),
         }
 
     with ThreadPoolExecutor(max_workers=3) as pool:
@@ -104,7 +115,9 @@ def load_raw(source_dir: Path) -> tuple[dict, dict]:
     raw_dir = source_dir / "raw"
     metadata_path = raw_dir / "retrieval_manifest.json"
     if not metadata_path.exists():
-        raise FileNotFoundError("Faltan las respuestas guardadas. Ejecute prepare_sources.py --fetch una vez.")
+        raise FileNotFoundError(
+            "Faltan las respuestas guardadas. Ejecute prepare_sources.py --fetch una vez."
+        )
     retrieval = json.loads(metadata_path.read_text(encoding="utf-8"))
     snapshots = {}
     for item in retrieval["snapshots"]:
@@ -119,35 +132,50 @@ def load_raw(source_dir: Path) -> tuple[dict, dict]:
 
 
 def plain_name(value: str) -> str:
-    return "".join(c for c in unicodedata.normalize("NFKD", value) if not unicodedata.combining(c)).lower()
+    return "".join(
+        c for c in unicodedata.normalize("NFKD", value) if not unicodedata.combining(c)
+    ).lower()
 
 
 def prepare_geography(source_dir: Path, snapshots: dict) -> None:
     records = []
     for city, (latitude, longitude, _) in CITIES.items():
         candidates = [
-            row for row in snapshots[f"geocoding_{city}.json"].get("results", [])
+            row
+            for row in snapshots[f"geocoding_{city}.json"].get("results", [])
             if row.get("country_code") == "CO"
             and row.get("feature_code") in {"PPLC", "PPLA", "PPLA2", "PPL"}
-            and plain_name(row["name"]) in {plain_name(city), "santiago de cali" if city == "Cali" else plain_name(city)}
+            and plain_name(row["name"])
+            in {plain_name(city), "santiago de cali" if city == "Cali" else plain_name(city)}
         ]
         if not candidates:
             raise ValueError(f"GeoNames no devolvió la ciudad esperada: {city}")
-        # El nombre puede repetirse; la cercanía a la coordenada de EA2 resuelve el homónimo.
-        selected = min(candidates, key=lambda row: (row["latitude"] - latitude) ** 2 + (row["longitude"] - longitude) ** 2)
+        # Si hay varios lugares con el mismo nombre, elijo el más cercano al punto de EA2.
+        selected = min(
+            candidates,
+            key=lambda row: (row["latitude"] - latitude) ** 2 + (row["longitude"] - longitude) ** 2,
+        )
         if (selected["latitude"] - latitude) ** 2 + (selected["longitude"] - longitude) ** 2 > 0.25:
-            raise ValueError(f"El resultado de geocodificación está lejos de la ciudad de EA2: {city}")
-        records.append({
-            "city": city, "country_code": selected["country_code"],
-            "geoname_id": selected["id"], "elevation_m": selected["elevation"],
-        })
+            raise ValueError(
+                f"El resultado de geocodificación está lejos de la ciudad de EA2: {city}"
+            )
+        records.append(
+            {
+                "city": city,
+                "country_code": selected["country_code"],
+                "geoname_id": selected["id"],
+                "elevation_m": selected["elevation"],
+            }
+        )
     write_json(source_dir / "city_geography.json", records)
 
 
 def normalize_xlsx_archive(path: Path) -> None:
-    # El contenedor ZIP lleva fechas variables aunque las celdas no cambien.
+    # Fijo las fechas internas del XLSX para que guardar el mismo contenido dé el mismo hash.
     buffer = io.BytesIO()
-    with zipfile.ZipFile(path) as original, zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as stable:
+    with zipfile.ZipFile(path) as original, zipfile.ZipFile(
+        buffer, "w", zipfile.ZIP_DEFLATED
+    ) as stable:
         for filename in sorted(original.namelist()):
             entry = zipfile.ZipInfo(filename, date_time=(2025, 1, 1, 0, 0, 0))
             entry.compress_type = zipfile.ZIP_DEFLATED
@@ -173,10 +201,14 @@ def prepare_calendar(source_dir: Path, snapshots: dict) -> tuple[int, int]:
     records = []
     for date in pd.date_range("2025-01-01", "2025-12-31"):
         names = sorted(set(by_date.get(date.strftime("%Y-%m-%d"), [])))
-        records.append({
-            "local_date": date.to_pydatetime(), "holiday_name": "; ".join(names) if names else "No festivo",
-            "is_holiday": bool(names), "is_weekend": date.dayofweek >= 5,
-        })
+        records.append(
+            {
+                "local_date": date.to_pydatetime(),
+                "holiday_name": "; ".join(names) if names else "No festivo",
+                "is_holiday": bool(names),
+                "is_weekend": date.dayofweek >= 5,
+            }
+        )
     frame = pd.DataFrame(records)
     path = source_dir / "calendar_2025.xlsx"
     with pd.ExcelWriter(path, engine="openpyxl", datetime_format="yyyy-mm-dd") as writer:
@@ -185,7 +217,9 @@ def prepare_calendar(source_dir: Path, snapshots: dict) -> tuple[int, int]:
         workbook.properties.creator = "Juan Sebastian Clavijo Correa"
         workbook.properties.created = datetime(2025, 1, 1)
         workbook.properties.modified = datetime(2025, 1, 1)
-        workbook.properties.description = "Festivos públicos nacionales de Colombia 2025. Fuente: " + HOLIDAY_URL
+        workbook.properties.description = (
+            "Festivos públicos nacionales de Colombia 2025. Fuente: " + HOLIDAY_URL
+        )
         sheet = writer.sheets["calendar"]
         sheet.freeze_panes = "A2"
         sheet.auto_filter.ref = "A1:D366"
@@ -209,18 +243,27 @@ def prepare_solar(source_dir: Path, snapshots: dict) -> dict:
         payload = snapshots[f"solar_{city}_2025.json"]
         if payload["utc_offset_seconds"] != -18000 or payload["daily"]["time"] != expected_dates:
             raise ValueError(f"Fechas o zona horaria inesperadas en la fuente solar: {city}")
-        frame = pd.DataFrame(payload["daily"]).rename(columns={
-            "time": "local_date", "shortwave_radiation_sum": "shortwave_radiation_sum_mj_m2",
-            "daylight_duration": "daylight_seconds", "sunshine_duration": "sunshine_seconds",
-        })
+        frame = pd.DataFrame(payload["daily"]).rename(
+            columns={
+                "time": "local_date",
+                "shortwave_radiation_sum": "shortwave_radiation_sum_mj_m2",
+                "daylight_duration": "daylight_seconds",
+                "sunshine_duration": "sunshine_seconds",
+            }
+        )
         frame.insert(0, "city", city)
         frames.append(frame)
         grids[city] = {
-            "requested_latitude": latitude, "requested_longitude": longitude,
-            "response_latitude": payload["latitude"], "response_longitude": payload["longitude"],
-            "response_elevation_m": payload["elevation"], "units": payload["daily_units"],
+            "requested_latitude": latitude,
+            "requested_longitude": longitude,
+            "response_latitude": payload["latitude"],
+            "response_longitude": payload["longitude"],
+            "response_elevation_m": payload["elevation"],
+            "units": payload["daily_units"],
         }
-    pd.concat(frames, ignore_index=True).to_csv(source_dir / "solar_daily_2025.csv", index=False, lineterminator="\n")
+    pd.concat(frames, ignore_index=True).to_csv(
+        source_dir / "solar_daily_2025.csv", index=False, lineterminator="\n"
+    )
     return grids
 
 
@@ -233,22 +276,28 @@ def prepare_municipalities(source_dir: Path, snapshots: dict) -> dict:
     records = []
     for city, (_, _, code) in CITIES.items():
         row = by_code[code]
-        records.append({
-            "city": city, "municipality_code": code, "municipality_name": row["MPIO_CNMBRE"],
-            "department_code": row["DPTO_CCDGO"], "department_name": row["DPTO_CNMBRE"],
-            "divipola_year": row["MPIO_NANO"],
-        })
+        records.append(
+            {
+                "city": city,
+                "municipality_code": code,
+                "municipality_name": row["MPIO_CNMBRE"],
+                "department_code": row["DPTO_CCDGO"],
+                "department_name": row["DPTO_CNMBRE"],
+                "divipola_year": row["MPIO_NANO"],
+            }
+        )
     table = pd.DataFrame(records).to_html(index=False, table_id="divipola", border=0)
     document = (
         '<!doctype html>\n<html lang="es"><meta charset="utf-8"><title>Municipios DIVIPOLA</title>\n'
-        '<h1>Municipios de la base EA2</h1>\n'
-        '<p>Tabla preparada a partir de la respuesta oficial del servicio DIVIPOLA MGN 2025. '
-        'Los códigos conservan sus ceros iniciales. divipola_year reproduce MPIO_NANO de cada registro.</p>\n'
-        + table + '\n<p>Fuente: Departamento Administrativo Nacional de Estadística - DANE: '
+        "<h1>Municipios de la base EA2</h1>\n"
+        "<p>Tabla preparada a partir de la respuesta oficial del servicio DIVIPOLA MGN 2025. "
+        "Los códigos conservan sus ceros iniciales. divipola_year reproduce MPIO_NANO de cada registro.</p>\n"
+        + table
+        + "\n<p>Fuente: Departamento Administrativo Nacional de Estadística - DANE: "
         '<a href="https://www.dane.gov.co">www.dane.gov.co</a>. '
-        'Se seleccionaron cinco municipios y se adaptaron los nombres de columna. '
+        "Se seleccionaron cinco municipios y se adaptaron los nombres de columna. "
         '<a href="https://geoportal.dane.gov.co/acerca-del-geoportal/licencia-y-condiciones-de-uso/">'
-        'Licencia y condiciones de uso</a>.</p></html>\n'
+        "Licencia y condiciones de uso</a>.</p></html>\n"
     )
     (source_dir / "municipalities.html").write_text(document, encoding="utf-8")
     return {row["city"]: row["divipola_year"] for row in records}
@@ -262,84 +311,198 @@ def prepare_authored_catalogs(source_dir: Path) -> None:
         ET.SubElement(record, "reference_temperature_c").text = "18.0"
         ET.SubElement(record, "parameter_scope").text = "academic_illustration"
     ET.indent(root, space="  ")
-    ET.ElementTree(root).write(source_dir / "thermal_parameters.xml", encoding="utf-8", xml_declaration=True)
-    rows = [{"hour": hour, "day_period": (
-        "madrugada" if hour < 6 else "manana" if hour < 12 else "tarde" if hour < 18 else "noche"
-    )} for hour in range(24)]
-    pd.DataFrame(rows).to_csv(source_dir / "hour_bands.txt", sep="\t", index=False, lineterminator="\n")
+    ET.ElementTree(root).write(
+        source_dir / "thermal_parameters.xml", encoding="utf-8", xml_declaration=True
+    )
+    rows = [
+        {
+            "hour": hour,
+            "day_period": (
+                "madrugada"
+                if hour < 6
+                else "manana" if hour < 12 else "tarde" if hour < 18 else "noche"
+            ),
+        }
+        for hour in range(24)
+    ]
+    pd.DataFrame(rows).to_csv(
+        source_dir / "hour_bands.txt", sep="\t", index=False, lineterminator="\n"
+    )
 
 
-def build_manifest(source_dir: Path, retrieval: dict, holidays: tuple, grids: dict, divipola_years: dict) -> None:
+def build_manifest(
+    source_dir: Path, retrieval: dict, holidays: tuple, grids: dict, divipola_years: dict
+) -> None:
     snapshots = retrieval["snapshots"]
     retrieved = max(row["retrieved_at_utc"] for row in snapshots)
 
-    def source(identifier, filename, rows, keys, provider, raw_names, license_text, license_url, notes, columns):
+    def source(
+        identifier,
+        filename,
+        rows,
+        keys,
+        provider,
+        raw_names,
+        license_text,
+        license_url,
+        notes,
+        columns,
+    ):
         raw_items = [item for item in snapshots if Path(item["path"]).name in raw_names]
         return {
-            "id": identifier, "format": Path(filename).suffix[1:].upper(), "path": filename,
-            "sha256": sha256(source_dir / filename), "rows": rows, "keys": keys, "columns": columns,
-            "provider": provider, "type": "external_data" if raw_items else "authored_catalog",
+            "id": identifier,
+            "format": Path(filename).suffix[1:].upper(),
+            "path": filename,
+            "sha256": sha256(source_dir / filename),
+            "rows": rows,
+            "keys": keys,
+            "columns": columns,
+            "provider": provider,
+            "type": "external_data" if raw_items else "authored_catalog",
             "source_urls": [item["source_url"] for item in raw_items],
             "retrieved_at_utc": max((item["retrieved_at_utc"] for item in raw_items), default=None),
-            "license": license_text, "license_url": license_url, "notes": notes,
+            "license": license_text,
+            "license_url": license_url,
+            "notes": notes,
             "raw_paths": [item["path"] for item in raw_items],
         }
 
     sources = [
-        source("city_geography", "city_geography.json", 5, ["city"], "Open-Meteo / GeoNames",
-               [f"geocoding_{city}.json" for city in CITIES], "CC BY 4.0 (API Open-Meteo); atribución GeoNames",
-               "https://open-meteo.com/en/licence",
-               ["Elevación del punto geográfico de GeoNames, no del centro de rejilla meteorológica ni promedio municipal.",
+        source(
+            "city_geography",
+            "city_geography.json",
+            5,
+            ["city"],
+            "Open-Meteo / GeoNames",
+            [f"geocoding_{city}.json" for city in CITIES],
+            "CC BY 4.0 (API Open-Meteo); atribución GeoNames",
+            "https://open-meteo.com/en/licence",
+            [
+                "Elevación del punto geográfico de GeoNames, no del centro de rejilla meteorológica ni promedio municipal.",
                 "Se escoge la coincidencia homónima de Colombia más cercana a la coordenada solicitada en EA2.",
-                "Se excluye población porque la respuesta no indica la fecha de referencia de esa cifra."],
-               ["city", "country_code", "geoname_id", "elevation_m"]),
-        source("calendar", "calendar_2025.xlsx", 365, ["local_date"], "Nager.Date",
-               ["holidays_co_2025.json"], "API para proyectos privados o sin ánimo de lucro; comercial requiere patrocinio. MIT corresponde al software, no equivale a licencia general de los datos.",
-               "https://nagerholidays.com/legal/termsofservice",
-               [f"La respuesta contiene {holidays[0]} festividades nacionales en {holidays[1]} fechas distintas. Se agrupan los nombres que coinciden en una fecha.",
+                "Se excluye población porque la respuesta no indica la fecha de referencia de esa cifra.",
+            ],
+            ["city", "country_code", "geoname_id", "elevation_m"],
+        ),
+        source(
+            "calendar",
+            "calendar_2025.xlsx",
+            365,
+            ["local_date"],
+            "Nager.Date",
+            ["holidays_co_2025.json"],
+            "API para proyectos privados o sin ánimo de lucro; comercial requiere patrocinio. MIT corresponde al software, no equivale a licencia general de los datos.",
+            "https://nagerholidays.com/legal/termsofservice",
+            [
+                f"La respuesta contiene {holidays[0]} festividades nacionales en {holidays[1]} fechas distintas. Se agrupan los nombres que coinciden en una fecha.",
                 "Calendario completo de 365 fechas locales. is_weekend se deriva del calendario gregoriano; una fecha sin festividad se marca No festivo.",
-                "Hoja calendar. No representa tarifas eléctricas, jornadas laborales ni excepciones sectoriales. API comunitaria, no autoridad normativa."],
-               ["local_date", "holiday_name", "is_holiday", "is_weekend"]),
-        source("solar_daily", "solar_daily_2025.csv", 1825, ["city", "local_date"], "Open-Meteo / ERA5 (ECMWF, Copernicus C3S)",
-               [f"solar_{city}_2025.json" for city in CITIES], "CC BY 4.0 (API Open-Meteo)",
-               "https://open-meteo.com/en/licence",
-               ["Modelo era5 fijado. Datos de reanálisis en rejilla, no observaciones de una estación urbana.",
+                "Hoja calendar. No representa tarifas eléctricas, jornadas laborales ni excepciones sectoriales. API comunitaria, no autoridad normativa.",
+            ],
+            ["local_date", "holiday_name", "is_holiday", "is_weekend"],
+        ),
+        source(
+            "solar_daily",
+            "solar_daily_2025.csv",
+            1825,
+            ["city", "local_date"],
+            "Open-Meteo / ERA5 (ECMWF, Copernicus C3S)",
+            [f"solar_{city}_2025.json" for city in CITIES],
+            "CC BY 4.0 (API Open-Meteo)",
+            "https://open-meteo.com/en/licence",
+            [
+                "Modelo era5 fijado. Datos de reanálisis en rejilla, no observaciones de una estación urbana.",
                 "Agregados del día completo en America/Bogota. Solo uso retrospectivo: no están disponibles al comenzar el día y pueden producir fuga temporal en pronósticos.",
                 "Se añaden variables solares. No se sustituyen las variables de EA2, cuyo modelo original no fue fijado.",
-                "Radiación: MJ/m² por día. Duración de luz y sol: segundos. Valores ausentes permanecen ausentes."],
-               ["city", "local_date", "shortwave_radiation_sum_mj_m2", "daylight_seconds", "sunshine_seconds"]),
-        source("municipalities", "municipalities.html", 5, ["city"], "Departamento Administrativo Nacional de Estadística (DANE)",
-               ["divipola_2025.json"], "CC BY 4.0, condiciones de uso del Geoportal DANE",
-               "https://geoportal.dane.gov.co/acerca-del-geoportal/licencia-y-condiciones-de-uso/",
-               ["HTML preparado para la actividad a partir del JSON oficial. No se presenta como una página HTML descargada del DANE.",
+                "Radiación: MJ/m² por día. Duración de luz y sol: segundos. Valores ausentes permanecen ausentes.",
+            ],
+            [
+                "city",
+                "local_date",
+                "shortwave_radiation_sum_mj_m2",
+                "daylight_seconds",
+                "sunshine_seconds",
+            ],
+        ),
+        source(
+            "municipalities",
+            "municipalities.html",
+            5,
+            ["city"],
+            "Departamento Administrativo Nacional de Estadística (DANE)",
+            ["divipola_2025.json"],
+            "CC BY 4.0, condiciones de uso del Geoportal DANE",
+            "https://geoportal.dane.gov.co/acerca-del-geoportal/licencia-y-condiciones-de-uso/",
+            [
+                "HTML preparado para la actividad a partir del JSON oficial. No se presenta como una página HTML descargada del DANE.",
                 "Códigos DIVIPOLA son texto y no equivalen a city_id local. Correspondencia revisada para las cinco ciudades.",
-                "El servicio se denomina MGN 2025; MPIO_NANO de Bucaramanga indica 2024. Se conserva ese año sin imputarlo."],
-               ["city", "municipality_code", "municipality_name", "department_code", "department_name", "divipola_year"]),
-        source("thermal_parameters", "thermal_parameters.xml", 5, ["city"], "Elaboración propia para la actividad académica", [],
-               "Catálogo original incluido con el proyecto académico", None,
-               ["Referencia de 18 °C fijada de manera ilustrativa para las cinco ciudades.",
-                "No es una norma, medición ni umbral calibrado de confort. Las diferencias térmicas derivadas no prueban consumo o causalidad."],
-               ["city", "reference_temperature_c", "parameter_scope"]),
-        source("hour_bands", "hour_bands.txt", 24, ["hour"], "Elaboración propia para la actividad académica", [],
-               "Catálogo original incluido con el proyecto académico", None,
-               ["TSV UTF-8 con clasificación propia: 00–05 madrugada, 06–11 mañana, 12–17 tarde y 18–23 noche.",
-                "Se usa la hora local de America/Bogota. No es una franja tarifaria ni clasificación oficial de demanda."],
-               ["hour", "day_period"]),
+                "El servicio se denomina MGN 2025; MPIO_NANO de Bucaramanga indica 2024. Se conserva ese año sin imputarlo.",
+            ],
+            [
+                "city",
+                "municipality_code",
+                "municipality_name",
+                "department_code",
+                "department_name",
+                "divipola_year",
+            ],
+        ),
+        source(
+            "thermal_parameters",
+            "thermal_parameters.xml",
+            5,
+            ["city"],
+            "Elaboración propia para la actividad académica",
+            [],
+            "Catálogo original incluido con el proyecto académico",
+            None,
+            [
+                "Referencia de 18 °C fijada de manera ilustrativa para las cinco ciudades.",
+                "No es una norma, medición ni umbral calibrado de confort. Las diferencias térmicas derivadas no prueban consumo o causalidad.",
+            ],
+            ["city", "reference_temperature_c", "parameter_scope"],
+        ),
+        source(
+            "hour_bands",
+            "hour_bands.txt",
+            24,
+            ["hour"],
+            "Elaboración propia para la actividad académica",
+            [],
+            "Catálogo original incluido con el proyecto académico",
+            None,
+            [
+                "TSV UTF-8 con clasificación propia: 00–05 madrugada, 06–11 mañana, 12–17 tarde y 18–23 noche.",
+                "Se usa la hora local de America/Bogota. No es una franja tarifaria ni clasificación oficial de demanda.",
+            ],
+            ["hour", "day_period"],
+        ),
     ]
-    write_json(source_dir / "source_manifest.json", {
-        "schema_version": 1, "source_snapshot_date_utc": retrieved,
-        "period": {"start": "2025-01-01", "end": "2025-12-31", "timezone": "America/Bogota"},
-        "prepared_by": "scripts/prepare_sources.py", "network_required_for_pipeline": False,
-        "sources": sources, "raw_snapshots": snapshots,
-        "solar_grid_metadata": grids, "divipola_record_years": divipola_years,
-        "external_provider_count": 3, "authored_catalog_count": 2,
-        "reproduction": "python scripts/prepare_sources.py usa snapshots locales. --fetch vuelve a consultar las APIs y cambia el manifiesto.",
-    })
+    write_json(
+        source_dir / "source_manifest.json",
+        {
+            "schema_version": 1,
+            "source_snapshot_date_utc": retrieved,
+            "period": {"start": "2025-01-01", "end": "2025-12-31", "timezone": "America/Bogota"},
+            "prepared_by": "scripts/prepare_sources.py",
+            "network_required_for_pipeline": False,
+            "sources": sources,
+            "raw_snapshots": snapshots,
+            "solar_grid_metadata": grids,
+            "divipola_record_years": divipola_years,
+            "external_provider_count": 3,
+            "authored_catalog_count": 2,
+            "reproduction": "python scripts/prepare_sources.py usa snapshots locales. --fetch vuelve a consultar las APIs y cambia el manifiesto.",
+        },
+    )
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--fetch", action="store_true", help="Consultar las APIs y reemplazar las respuestas guardadas.")
+    parser.add_argument(
+        "--fetch",
+        action="store_true",
+        help="Consultar las APIs y reemplazar las respuestas guardadas.",
+    )
     parser.add_argument("--source-dir", type=Path, default=SOURCE_DIR)
     args = parser.parse_args()
     args.source_dir.mkdir(parents=True, exist_ok=True)

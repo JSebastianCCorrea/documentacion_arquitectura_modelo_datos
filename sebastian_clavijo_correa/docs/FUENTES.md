@@ -1,12 +1,12 @@
 # Fuentes y procedencia de los datos
 
-El enriquecimiento usa seis archivos con granos distintos. Cuatro contienen datos de tres servicios públicos consultados: Open-Meteo, Nager.Date y DANE. Los otros dos son catálogos preparados para este ejercicio. Tener seis formatos no significa haber consultado seis proveedores independientes.
+Para el enriquecimiento usé seis archivos: algunos tienen una fila por ciudad, otros por fecha o por hora. Cuatro contienen datos de Open-Meteo, Nager.Date y DANE. Los otros dos son catálogos que preparé para el ejercicio. En total se trabajó con seis formatos y tres proveedores externos.
 
 Las respuestas originales se descargaron el 22 de septiembre de 2026, hora de Colombia, correspondiente al 23 de septiembre en UTC. Las fechas exactas de consulta, URL completas, parámetros, número de filas y huellas SHA-256 están en [`source_manifest.json`](../src/sources/source_manifest.json). El conjunto meteorológico abarca 2025; su periodo de observación es diferente de la fecha en que se descargó.
 
 ## 1. Archivos que consume el proceso
 
-| Archivo | Filas y grano | Claves de cruce | Información que aporta |
+| Archivo | Filas y unidad de registro | Claves de cruce | Información que aporta |
 |---|---|---|---|
 | `city_geography.json` | 5 ciudades | `city` | País, identificador GeoNames y elevación del punto geográfico. |
 | `calendar_2025.xlsx` | 365 fechas, una fila por día local | `local_date` | Festivo nacional, nombre y fin de semana. Se lee la hoja `calendar`. |
@@ -21,7 +21,7 @@ Las claves diarias y horarias se calculan en `America/Bogota`. No se cruza direc
 
 ### Ubicación de las ciudades
 
-Se consultó la [API de geocodificación de Open-Meteo](https://open-meteo.com/en/docs/geocoding-api), cuyos datos de localización proceden de [GeoNames](https://www.geonames.org/export/). La consulta filtra Colombia. Cuando aparecen lugares homónimos, el script elige la coincidencia más cercana a las coordenadas usadas en la Actividad 2. El nombre Santiago de Cali se corresponde explícitamente con `Cali` en la base.
+Se consultó la [API de geocodificación de Open-Meteo](https://open-meteo.com/en/docs/geocoding-api), cuyos datos de localización proceden de [GeoNames](https://www.geonames.org/export/). La consulta filtra Colombia. Cuando aparecen lugares con el mismo nombre, el script elige la coincidencia más cercana a las coordenadas usadas en la Actividad 2. El nombre Santiago de Cali se corresponde explícitamente con `Cali` en la base.
 
 Se conservan `country_code`, `geoname_id` y `elevation_m`. Este último describe el punto devuelto por el geocodificador. No es la elevación promedio del municipio ni la elevación del punto de rejilla meteorológica. Por ejemplo, la respuesta guardada informa 758 metros para el punto de Cali; el valor se conserva con su significado y procedencia. La población recibida en algunas respuestas no se integra porque la API no indica su fecha de referencia.
 
@@ -29,7 +29,7 @@ Se conservan `country_code`, `geoname_id` y `elevation_m`. Este último describe
 
 La [API histórica de Open-Meteo](https://open-meteo.com/en/docs/historical-weather-api) se consultó para las cinco ciudades, del 1 de enero al 31 de diciembre de 2025, con `models=era5` y `timezone=America/Bogota`. Los datos provienen de reanálisis en una rejilla. No deben presentarse como mediciones de una estación instalada en cada ciudad.
 
-Las variables originales `shortwave_radiation_sum`, `daylight_duration` y `sunshine_duration` se renombran para que las unidades queden visibles: MJ/m² y segundos. Las coordenadas solicitadas y las devueltas por la rejilla se guardan en `solar_grid_metadata` dentro del manifiesto. No son necesariamente iguales. La consulta de enriquecimiento fija ERA5; la extracción original de la Actividad 1 no fijó el modelo. Por ello no se afirma que ambas etapas usen exactamente el mismo producto meteorológico ni se reemplaza el clima ya contenido en la base limpia.
+Las variables originales `shortwave_radiation_sum`, `daylight_duration` y `sunshine_duration` se renombran para que las unidades queden visibles: MJ/m² y segundos. Las coordenadas solicitadas y las devueltas por la rejilla se guardan en `solar_grid_metadata` dentro del manifiesto. No son necesariamente iguales. La consulta de enriquecimiento fija ERA5; la extracción original de la Actividad 1 no fijó el modelo. Por esa diferencia no se asume que ambas etapas usen el mismo producto meteorológico. Se conservan los datos del clima que ya estaban en la base limpia.
 
 Estos son **agregados del día completo**. Sirven para describir lo ocurrido, pero no estaban disponibles al comenzar ese día. Si en una actividad posterior se pronostica demanda, usarlos para predecir las primeras horas del mismo día introduciría información del futuro. Haría falta excluirlos, rezagarlos según la disponibilidad real del proveedor o utilizar pronósticos emitidos antes del momento de predicción. El enriquecimiento por sí solo no resuelve esa decisión de modelado.
 
@@ -61,7 +61,7 @@ Aunque el nombre del servicio indica MGN 2025, su campo `MPIO_NANO` devuelve **2
 
 `hour_bands.txt` clasifica las horas locales de 00 a 05 como `madrugada`, de 06 a 11 como `manana`, de 12 a 17 como `tarde` y de 18 a 23 como `noche`. Son intervalos definidos para la actividad. No se presentan como franjas tarifarias ni como una clasificación oficial de demanda.
 
-Ambos catálogos forman parte del trabajo original del proyecto. El manifiesto los distingue de las fuentes externas mediante `type=authored_catalog` y no inventa una URL ni fecha de consulta para ellos.
+Ambos catálogos se elaboraron para este proyecto. En el manifiesto aparecen como `type=authored_catalog`; al ser archivos propios, no tienen una URL ni una fecha de consulta externa.
 
 ## 6. Respuestas originales y reproducción
 

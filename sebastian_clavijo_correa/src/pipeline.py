@@ -1,4 +1,4 @@
-"""Ejecuta las tres fases y construye el modelo documentado."""
+"""Ejecuta la ingesta, la limpieza, el enriquecimiento y la creación de SQLite."""
 
 from pathlib import Path
 from datetime import datetime, timezone
@@ -26,7 +26,7 @@ def digest(path):
 
 
 def run(output: Path):
-    # Las salidas de CI viven en un directorio nuevo: nunca se aprueba una copia antigua.
+    # Guardo las salidas en build para revisar resultados recién generados.
     output.mkdir(parents=True, exist_ok=True)
     audit = output / "static/auditoria"
     audit.mkdir(parents=True, exist_ok=True)
@@ -43,7 +43,8 @@ def run(output: Path):
         f"INGESTA REPRODUCIDA\nRespuestas archivadas de API: 5. Solicitudes HTTP nuevas: 0.\n"
         f"Filas JSON: {replay['raw_rows']}. Filas conservadas: {replay['retained_rows']}.\n"
         "Energía sintética con semilla 42. Comparación exacta con la extracción de EA1: PASS.\n",
-        encoding="utf-8")
+        encoding="utf-8",
+    )
     clean_result = cleaning.run_pipeline(replayed, output / "cleaning")
     fresh_csv = output / "cleaning/xlsx/cleaned_full.csv"
     reference_csv = ROOT / "src/data/base/cleaned_full.csv"
@@ -51,7 +52,7 @@ def run(output: Path):
         raise ValueError("La salida limpia ya no reproduce byte a byte el CSV de EA2")
     cleaned_db = output / "db/cleaned.duckdb"
     frame = prepare_base.read_base(fresh_csv)
-    # Se preservan los tipos y la precisión que ya empleaba la etapa de enriquecimiento.
+    # Conservo los tipos y los decimales usados en la actividad de enriquecimiento.
     with duckdb.connect(str(cleaned_db)) as con:
         con.register("input_cleaned", frame)
         con.execute("CREATE OR REPLACE TABLE cleaned_data AS SELECT * FROM input_cleaned")
@@ -59,21 +60,35 @@ def run(output: Path):
     reference_enriched = ROOT / "src/data/reference/enriched_full.csv"
     if digest(output / "data/enriched_full.csv") != digest(reference_enriched):
         raise ValueError("El enriquecimiento difiere del CSV aprobado en la entrega anterior")
-    model_result = model.run(output / "data/enriched_full.csv", output / "db/analytics.sqlite",
-                             output / "sql/schema.sql", audit / "model_validation.json")
+    model_result = model.run(
+        output / "data/enriched_full.csv",
+        output / "db/analytics.sqlite",
+        output / "sql/schema.sql",
+        audit / "model_validation.json",
+    )
     if digest(original) != original_hash:
         raise ValueError("Se modificó la instantánea de EA1")
-    summary = {"status": "PASS", "execution_utc": datetime.now(timezone.utc).isoformat(),
-               "ingestion_equals_ea1": True, "cleaning_equals_ea2_bytes": True,
-               "enrichment_equals_previous_bytes": True, "ea1_sha256": original_hash,
-               "cleaned_csv_sha256": digest(fresh_csv), "enriched_csv_sha256": digest(output / "data/enriched_full.csv"),
-               "rows": enriched_result["rows_after"], "columns": enriched_result["columns_after"],
-               "sqlite_roundtrip_exact": model_result["roundtrip_exact"],
-               "sqlite_sha256": digest(output / "db/analytics.sqlite")}
+    summary = {
+        "status": "PASS",
+        "execution_utc": datetime.now(timezone.utc).isoformat(),
+        "ingestion_equals_ea1": True,
+        "cleaning_equals_ea2_bytes": True,
+        "enrichment_equals_previous_bytes": True,
+        "ea1_sha256": original_hash,
+        "cleaned_csv_sha256": digest(fresh_csv),
+        "enriched_csv_sha256": digest(output / "data/enriched_full.csv"),
+        "rows": enriched_result["rows_after"],
+        "columns": enriched_result["columns_after"],
+        "sqlite_roundtrip_exact": model_result["roundtrip_exact"],
+        "sqlite_sha256": digest(output / "db/analytics.sqlite"),
+    }
     (audit / "pipeline_validation.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     (audit / "pipeline_report.txt").write_text(
-        "INTEGRACIÓN COMPLETA\n" + "\n".join(f"{key}: {value}" for key, value in summary.items()) + "\n",
-        encoding="utf-8")
+        "INTEGRACIÓN COMPLETA\n"
+        + "\n".join(f"{key}: {value}" for key, value in summary.items())
+        + "\n",
+        encoding="utf-8",
+    )
     return summary
 
 

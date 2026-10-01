@@ -11,7 +11,6 @@ from pandas.testing import assert_frame_equal
 
 from src.cleaning import clean_frame, representative_sample
 
-
 CITY_DATA = {
     "Bogota": (2, 4.7110, -74.0721),
     "Medellin": (5, 6.2442, -75.5812),

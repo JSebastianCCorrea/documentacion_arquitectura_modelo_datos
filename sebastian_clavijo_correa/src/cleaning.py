@@ -1,4 +1,4 @@
-"""Lee la base de EA1 y prepara los datos y la auditoría de limpieza de EA2."""
+"""Limpia los datos de EA1 y guarda las salidas y los reportes de EA2."""
 
 from __future__ import annotations
 
@@ -87,19 +87,17 @@ def extract_database(path: Path) -> tuple[pd.DataFrame, dict]:
         expected = {"dim_city", "dim_time", "fact_weather_energy", "staging_weather"}
         if not expected <= tables:
             raise ValueError(f"Faltan tablas EA1: {sorted(expected-tables)}")
-        # Un ID repetido en una dimensión multiplicaría las filas del JOIN.
+        # Reviso los ID antes del JOIN para evitar que un duplicado multiplique las filas.
         for table, key in [("dim_city", "city_id"), ("dim_time", "time_id")]:
             total, distinct, nonnull = con.execute(
                 f"SELECT count(*),count(distinct {key}),count({key}) FROM {table}"
             ).fetchone()
             if total != distinct or total != nonnull:
                 raise ValueError(f"Integridad dimensional inválida en {table}.{key}")
-        orphan_count = con.execute(
-            """SELECT count(*) FROM fact_weather_energy f
+        orphan_count = con.execute("""SELECT count(*) FROM fact_weather_energy f
             LEFT JOIN dim_city c ON c.city_id=f.city_id
             LEFT JOIN dim_time t ON t.time_id=f.time_id
-            WHERE c.city_id IS NULL OR t.time_id IS NULL"""
-        ).fetchone()[0]
+            WHERE c.city_id IS NULL OR t.time_id IS NULL""").fetchone()[0]
         if orphan_count:
             raise ValueError(
                 f"{orphan_count} hechos sin dimensión; no se permite perder filas en el JOIN"
@@ -172,8 +170,8 @@ def clean_frame(raw: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
     data["observation_time"] = parsed
     ops["invalid_datetimes"] = int((original_time_nonnull & parsed.isna()).sum())
 
-    # Si humedad 150 y 200 pasan a NaN, parecen iguales. Esta firma conserva
-    # la diferencia para tratar las dos versiones como un conflicto de origen.
+    # Si convierto las humedades 150 y 200 a NaN, se pierde su diferencia.
+    # Guardo los valores de origen para detectar que son dos registros en conflicto.
     def metric_identity(value):
         if pd.isna(value):
             return ("missing", "")
@@ -234,7 +232,7 @@ def clean_frame(raw: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
     data = data.drop(columns="_metric_signature")
     for name in ["year", "month", "day", "hour"]:
         data[name] = getattr(data["observation_time"].dt, name).astype("int64")
-    # Sin dato de lluvia no podemos distinguir un día seco de una medición faltante.
+    # Una lluvia faltante no equivale a cero: no permite saber si estuvo seco.
     reject(data["precipitation_mm"].isna(), "MISSING_OR_INVALID_PRECIPITATION")
     data["imputed_fields"] = ""
     ops["imputed_cells"] = {}
@@ -315,7 +313,7 @@ def clean_frame(raw: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
 
 
 def representative_sample(data: pd.DataFrame, per_group: int = 20, seed: int = 42) -> pd.DataFrame:
-    """Toma una cuota por ciudad y mes; conserva completos los grupos pequeños."""
+    """Toma hasta el límite de filas por ciudad y mes; incluye completos los grupos pequeños."""
     if per_group < 1:
         raise ValueError("per_group debe ser positivo")
     groups = [
