@@ -1,0 +1,13 @@
+{
+  "run_id": 36804375739,
+  "commit": "a9660dc1be7a75f75c6e730fd09800ddf71ff1bd",
+  "status": "success",
+  "tests": 44,
+  "artifact_id": 11136618535,
+  "artifact_name": "arquitectura-modelo-36804375739-1",
+  "artifact_digest": "sha256:607a84604b6ea9d188b78a0bf51458e77e7ac932a5a2cccc47d1e4b6f914bbbb",
+  "remote_csv_equals_local": true,
+  "remote_sqlite_view_values_equal": true,
+  "remote_pdf_equals_local": true,
+  "compared_sqlite_cells": 2759400
+}
